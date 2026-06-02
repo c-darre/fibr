@@ -8,9 +8,9 @@
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back" %>
 
     <%# 3 inputs cachés pour l'upload galerie (sans capture) %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag",   onchange: "tagPris()" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front", onchange: "devantPris()" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back",  onchange: "derrierePris()" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back" %>
 
     <%# Canvas invisible : sert à photographier une image du flux vidéo %>
     <canvas id="canvas" class="d-none"></canvas>
@@ -31,7 +31,7 @@
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
 
           <%# Bouton caméra : shutter classique %>
-          <button type="button" onclick="capturerPhoto()"
+          <button type="button" id="btn-camera"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 72px; height: 72px; border-radius: 50%;
                          background: transparent;
@@ -45,7 +45,7 @@
           </button>
 
           <%# Bouton upload : cercle avec + %>
-          <button type="button" onclick="ouvrirUpload()"
+          <button type="button" id="btn-upload"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 48px; height: 48px; border-radius: 50%;
                          background: rgba(255,255,255,0.2);
@@ -134,6 +134,20 @@
   // Lance demarrerCamera() dès que la page est prête
   document.addEventListener("DOMContentLoaded", demarrerCamera)
   document.addEventListener("turbo:load", demarrerCamera)
+
+  // -----------------------------------------------------------------
+  // ÉVÉNEMENTS
+  // On regroupe ici tous les écouteurs de clics et de changements.
+  // addEventListener("click", maFonction) = "quand on clique, appelle maFonction"
+  // addEventListener("change", maFonction) = "quand le fichier change, appelle maFonction"
+  // C'est plus propre que d'écrire onclick="..." directement dans le HTML.
+  // -----------------------------------------------------------------
+  document.getElementById("btn-camera").addEventListener("click", capturerPhoto)
+  document.getElementById("btn-upload").addEventListener("click", ouvrirUpload)
+
+  document.getElementById("upload-tag").addEventListener("change", tagPris)
+  document.getElementById("upload-front").addEventListener("change", devantPris)
+  document.getElementById("upload-back").addEventListener("change", derrierePris)
 
   // -----------------------------------------------------------------
   // BOUTON "+" : OUVRIR LA GALERIE
