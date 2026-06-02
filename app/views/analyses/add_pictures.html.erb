@@ -1,21 +1,94 @@
 <div class="container py-5" style="max-width: 600px;">
-  <h2 class="mb-2">Ajoutez vos photos</h2>
-  <p class="text-muted mb-4">
-    Prenez plusieurs clichés sous différents angles pour une analyse plus précise
-    (face, dos, étiquette, détails de couture).
-  </p>
+  <h2 class="mb-2">Photographiez votre vêtement</h2>
+  <p class="text-muted mb-4">3 photos sont nécessaires pour l'analyse.</p>
 
   <%= form_with model: [@analysis, @message], html: { multipart: true } do |f| %>
-    <div class="mb-4">
-      <%= f.label :photos, "Photos du vêtement", class: "form-label fw-semibold" %>
-      <%= f.file_field :photos,
-            multiple: true,
-            accept:   "image/*",
-            class:    "form-control",
-            required: true %>
-      <div class="form-text">Formats acceptés : JPEG, PNG, WebP. Plusieurs fichiers possibles.</div>
+
+    <%# --- Photo 1 : Étiquette --- %>
+    <div class="card mb-3 p-3">
+      <p class="fw-semibold mb-2">🏷️ Étiquette</p>
+      <div class="d-flex gap-2">
+        <label class="btn btn-outline-secondary flex-fill">
+          📁 Importer
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-label')" %>
+        </label>
+        <label class="btn btn-outline-primary flex-fill">
+          📷 Prendre une photo
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                capture: "environment",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-label')" %>
+        </label>
+      </div>
+      <img id="preview-label" class="mt-2 rounded d-none" style="width: 150px; height: 150px; object-fit: cover;">
+    </div>
+
+    <%# --- Photo 2 : Devant --- %>
+    <div class="card mb-3 p-3">
+      <p class="fw-semibold mb-2">📸 Devant du vêtement</p>
+      <div class="d-flex gap-2">
+        <label class="btn btn-outline-secondary flex-fill">
+          📁 Importer
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-front')" %>
+        </label>
+        <label class="btn btn-outline-primary flex-fill">
+          📷 Prendre une photo
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                capture: "environment",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-front')" %>
+        </label>
+      </div>
+      <img id="preview-front" class="mt-2 rounded w-100 d-none">
+    </div>
+
+    <%# --- Photo 3 : Derrière --- %>
+    <div class="card mb-3 p-3">
+      <p class="fw-semibold mb-2">📸 Derrière du vêtement</p>
+      <div class="d-flex gap-2">
+        <label class="btn btn-outline-secondary flex-fill">
+          📁 Importer
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-back')" %>
+        </label>
+        <label class="btn btn-outline-primary flex-fill">
+          📷 Prendre une photo
+          <%= f.file_field :photos,
+                multiple: true,
+                accept: "image/*",
+                capture: "environment",
+                class: "d-none",
+                onchange: "previewPhoto(this, 'preview-back')" %>
+        </label>
+      </div>
+      <img id="preview-back" class="mt-2 rounded d-none" style="width: 150px; height: 150px; object-fit: cover;">
     </div>
 
     <%= f.submit "Lancer l'analyse", class: "btn btn-primary btn-lg w-100" %>
   <% end %>
 </div>
+
+<script>
+  function previewPhoto(input, previewId) {
+    const preview = document.getElementById(previewId)
+    const file = input.files[0]
+    if (!file) return
+    preview.src = URL.createObjectURL(file)
+    preview.classList.remove("d-none")
+  }
+</script>
