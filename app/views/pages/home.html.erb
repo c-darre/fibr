@@ -1,2 +1,11 @@
-<h1>Pages#home</h1>
-<p>Find me in app/views/pages/home.html.erb</p>
+<div class="container text-center py-5">
+  <h1 class="display-4 fw-bold mb-4">Analysez votre vêtement</h1>
+  <p class="lead text-muted mb-5">
+    Photographiez votre pièce et obtenez en quelques secondes une analyse IA
+    détaillée sur la matière, la coupe et les finitions.
+  </p>
+
+  <%= button_to "Commencer l'analyse →", analyses_path,
+        method: :post,
+        class: "btn btn-primary btn-lg px-5" %>
+</div>

@@ -1,0 +1,21 @@
+<div class="container py-5" style="max-width: 600px;">
+  <h2 class="mb-2">Ajoutez vos photos</h2>
+  <p class="text-muted mb-4">
+    Prenez plusieurs clichés sous différents angles pour une analyse plus précise
+    (face, dos, étiquette, détails de couture).
+  </p>
+
+  <%= form_with model: [@analysis, @message], html: { multipart: true } do |f| %>
+    <div class="mb-4">
+      <%= f.label :photos, "Photos du vêtement", class: "form-label fw-semibold" %>
+      <%= f.file_field :photos,
+            multiple: true,
+            accept:   "image/*",
+            class:    "form-control",
+            required: true %>
+      <div class="form-text">Formats acceptés : JPEG, PNG, WebP. Plusieurs fichiers possibles.</div>
+    </div>
+
+    <%= f.submit "Lancer l'analyse", class: "btn btn-primary btn-lg w-100" %>
+  <% end %>
+</div>
