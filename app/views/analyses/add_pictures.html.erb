@@ -2,10 +2,15 @@
 
   <%= form_with model: [@analysis, @message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
-    <%# 3 inputs cachés, un par étape %>
+    <%# 3 inputs cachés pour la caméra %>
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag" %>
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front" %>
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back" %>
+
+    <%# 3 inputs cachés pour l'upload galerie (sans capture) %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag",   onchange: "tagPris()" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front", onchange: "devantPris()" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back",  onchange: "derrierePris()" %>
 
     <%# Canvas invisible : sert à photographier une image du flux vidéo %>
     <canvas id="canvas" class="d-none"></canvas>
@@ -14,7 +19,7 @@
     <div class="position-relative flex-grow-1 overflow-hidden">
 
       <%# Flux vidéo live : remplit toute la zone %>
-      <video id="camera-feed" autoplay playsinline
+      <video id="camera-feed" autoplay playsinline muted
              class="position-absolute top-0 start-0 w-100 h-100"
              style="object-fit: cover;"></video>
 
@@ -22,16 +27,35 @@
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
 
-        <%# Bouton caméra : cercle blanc semi-transparent, au-dessus du texte %>
-        <button type="button" onclick="capturerPhoto()"
-                class="d-inline-flex align-items-center justify-content-center mb-3"
-                style="width: 72px; height: 72px; border-radius: 50%;
-                       background: transparent;
-                       border: 3px solid white;
-                       box-shadow: 0 0 0 8px rgba(255,255,255,0.25);
-                       cursor: pointer;">
-          <span style="font-size: 1.8rem; filter: brightness(0) invert(1);">📷</span>
-        </button>
+        <%# Les deux boutons côte à côte %>
+        <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
+
+          <%# Bouton caméra : shutter classique %>
+          <button type="button" onclick="capturerPhoto()"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 72px; height: 72px; border-radius: 50%;
+                         background: transparent;
+                         border: 3px solid white;
+                         box-shadow: 0 0 0 8px rgba(255,255,255,0.25);
+                         cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5" style="pointer-events: none;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+            </svg>
+          </button>
+
+          <%# Bouton upload : cercle avec + %>
+          <button type="button" onclick="ouvrirUpload()"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 48px; height: 48px; border-radius: 50%;
+                         background: rgba(255,255,255,0.2);
+                         border: 2px solid white;
+                         cursor: pointer; color: white;
+                         font-size: 1.5rem; line-height: 1;">
+            +
+          </button>
+
+        </div>
 
         <h2 id="scan-text" class="fw-bold mb-0" style="color: white; letter-spacing: 1px; font-size: 1.2rem;">SCAN YOUR TAG</h2>
       </div>
@@ -43,35 +67,35 @@
       <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
         <div>
           <p class="mb-0 fw-semibold">Tag</p>
-          <p class="mb-0 text-muted small">Étiquette</p>
+          <p class="mb-0 text-muted small">Clothing label</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <span id="status-tag-text" class="text-muted small">STATUS</span>
+          <span id="status-tag-text" class="text-muted small">PENDING</span>
           <span id="status-tag-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
         </div>
       </div>
       <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
         <div>
-          <p class="mb-0 fw-semibold">Devant</p>
-          <p class="mb-0 text-muted small">Face du vêtement</p>
+          <p class="mb-0 fw-semibold">Front</p>
+          <p class="mb-0 text-muted small">Front of garment</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <span id="status-front-text" class="text-muted small">STATUS</span>
+          <span id="status-front-text" class="text-muted small">PENDING</span>
           <span id="status-front-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
         </div>
       </div>
       <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
         <div>
-          <p class="mb-0 fw-semibold">Derrière</p>
-          <p class="mb-0 text-muted small">Dos du vêtement</p>
+          <p class="mb-0 fw-semibold">Back</p>
+          <p class="mb-0 text-muted small">Back of garment</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <span id="status-back-text" class="text-muted small">STATUS</span>
+          <span id="status-back-text" class="text-muted small">PENDING</span>
           <span id="status-back-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
         </div>
       </div>
       <div class="p-3">
-        <%= f.submit "Lancer l'analyse", id: "submit-btn", class: "btn btn-primary btn-lg w-100", disabled: true %>
+        <%= f.submit "Start analysis", id: "submit-btn", class: "btn btn-primary btn-lg w-100", disabled: true %>
       </div>
     </div>
 
@@ -79,28 +103,78 @@
 </div>
 
 <script>
+  // step suit l'étape en cours : 1 = Tag, 2 = Front, 3 = Back
+  // Il augmente à chaque photo prise ou importée
   let step = 1
 
-  window.onload = function() {
+  // -----------------------------------------------------------------
+  // DÉMARRAGE DE LA CAMÉRA
+  // Appelée automatiquement au chargement de la page (deux événements
+  // pour être compatible avec Turbo, le système de navigation de Rails)
+  // -----------------------------------------------------------------
+  function demarrerCamera() {
+    const video = document.getElementById("camera-feed")
+
+    // Si l'élément n'existe pas ou si la caméra tourne déjà : on arrête
+    if (!video || video.srcObject) return
+
+    // getUserMedia : API du navigateur qui demande l'accès à la caméra
+    // facingMode "environment" = caméra arrière du téléphone
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
       .then(function(stream) {
-        document.getElementById("camera-feed").srcObject = stream
+        // La permission est accordée : on branche le flux vidéo sur la balise <video>
+        video.srcObject = stream
+      })
+      .catch(function(erreur) {
+        // La permission est refusée ou une erreur survient : on affiche le message
+        document.getElementById("scan-text").textContent = "Error: " + erreur.message
       })
   }
 
+  // Lance demarrerCamera() dès que la page est prête
+  document.addEventListener("DOMContentLoaded", demarrerCamera)
+  document.addEventListener("turbo:load", demarrerCamera)
+
+  // -----------------------------------------------------------------
+  // BOUTON "+" : OUVRIR LA GALERIE
+  // Simule un clic sur le bon input caché selon l'étape en cours
+  // L'input caché s'ouvre et propose la galerie photo du téléphone
+  // -----------------------------------------------------------------
+  function ouvrirUpload() {
+    if (step === 1) document.getElementById("upload-tag").click()
+    if (step === 2) document.getElementById("upload-front").click()
+    if (step === 3) document.getElementById("upload-back").click()
+  }
+
+  // -----------------------------------------------------------------
+  // BOUTON CAMÉRA : CAPTURER UNE PHOTO DU FLUX VIDÉO
+  // Le canvas est une "zone de dessin" invisible.
+  // On y copie l'image actuelle de la vidéo, puis on la convertit
+  // en fichier pour l'attacher à l'input caché du formulaire.
+  // -----------------------------------------------------------------
   function capturerPhoto() {
     const video  = document.getElementById("camera-feed")
     const canvas = document.getElementById("canvas")
 
+    // Donne au canvas les mêmes dimensions que la vidéo
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
+
+    // Dessine l'image actuelle de la vidéo dans le canvas (comme un screenshot)
     canvas.getContext("2d").drawImage(video, 0, 0)
 
+    // Convertit le canvas en fichier image (blob = données brutes d'un fichier)
     canvas.toBlob(function(blob) {
-      const fichier   = new File([blob], "photo.jpg", { type: "image/jpeg" })
+
+      // Crée un vrai fichier nommé "photo.jpg" à partir des données brutes
+      const fichier = new File([blob], "photo.jpg", { type: "image/jpeg" })
+
+      // DataTransfer est le seul moyen en JavaScript d'attacher un fichier
+      // manuellement à un input de type file
       const transfert = new DataTransfer()
       transfert.items.add(fichier)
 
+      // Attache le fichier au bon input caché selon l'étape, puis avance
       if (step === 1) {
         document.getElementById("input-tag").files = transfert.files
         tagPris()
@@ -114,6 +188,12 @@
     })
   }
 
+  // -----------------------------------------------------------------
+  // MISE À JOUR DU STATUT
+  // Ces 3 fonctions sont appelées après une capture caméra OU un upload.
+  // Elles passent le point en vert, mettent à jour le texte,
+  // et avancent l'étape.
+  // -----------------------------------------------------------------
   function tagPris() {
     document.getElementById("status-tag-dot").style.background = "#198754"
     document.getElementById("status-tag-text").textContent = "OK"
@@ -134,7 +214,8 @@
     document.getElementById("status-back-dot").style.background = "#198754"
     document.getElementById("status-back-text").textContent = "OK"
     document.getElementById("status-back-text").style.color = "#198754"
-    document.getElementById("scan-text").textContent = "C'est bon !"
+    document.getElementById("scan-text").textContent = "All done!"
+    // Active le bouton "Start analysis" maintenant que les 3 photos sont prises
     document.getElementById("submit-btn").disabled = false
     step = 4
   }
