@@ -1,94 +1,141 @@
-<div class="container py-5" style="max-width: 600px;">
-  <h2 class="mb-2">Photographiez votre vêtement</h2>
-  <p class="text-muted mb-4">3 photos sont nécessaires pour l'analyse.</p>
+<div class="d-flex flex-column" style="max-width: 480px; margin: auto; height: 100vh;">
 
-  <%= form_with model: [@analysis, @message], html: { multipart: true } do |f| %>
+  <%= form_with model: [@analysis, @message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
-    <%# --- Photo 1 : Étiquette --- %>
-    <div class="card mb-3 p-3">
-      <p class="fw-semibold mb-2">🏷️ Étiquette</p>
-      <div class="d-flex gap-2">
-        <label class="btn btn-outline-secondary flex-fill">
-          📁 Importer
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-label')" %>
-        </label>
-        <label class="btn btn-outline-primary flex-fill">
-          📷 Prendre une photo
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                capture: "environment",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-label')" %>
-        </label>
+    <%# 3 inputs cachés, un par étape %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back" %>
+
+    <%# Canvas invisible : sert à photographier une image du flux vidéo %>
+    <canvas id="canvas" class="d-none"></canvas>
+
+    <%# Zone caméra : prend tout l'espace au-dessus du bloc statut, sans espace %>
+    <div class="position-relative flex-grow-1 overflow-hidden">
+
+      <%# Flux vidéo live : remplit toute la zone %>
+      <video id="camera-feed" autoplay playsinline
+             class="position-absolute top-0 start-0 w-100 h-100"
+             style="object-fit: cover;"></video>
+
+      <%# Bouton et texte flottent par-dessus la vidéo, en bas %>
+      <div class="position-absolute bottom-0 w-100 text-center pb-4"
+           style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
+
+        <%# Bouton caméra : cercle blanc semi-transparent, au-dessus du texte %>
+        <button type="button" onclick="capturerPhoto()"
+                class="d-inline-flex align-items-center justify-content-center mb-3"
+                style="width: 72px; height: 72px; border-radius: 50%;
+                       background: transparent;
+                       border: 3px solid white;
+                       box-shadow: 0 0 0 8px rgba(255,255,255,0.25);
+                       cursor: pointer;">
+          <span style="font-size: 1.8rem; filter: brightness(0) invert(1);">📷</span>
+        </button>
+
+        <h2 id="scan-text" class="fw-bold mb-0" style="color: white; letter-spacing: 1px; font-size: 1.2rem;">SCAN YOUR TAG</h2>
       </div>
-      <img id="preview-label" class="mt-2 rounded d-none" style="width: 150px; height: 150px; object-fit: cover;">
+
     </div>
 
-    <%# --- Photo 2 : Devant --- %>
-    <div class="card mb-3 p-3">
-      <p class="fw-semibold mb-2">📸 Devant du vêtement</p>
-      <div class="d-flex gap-2">
-        <label class="btn btn-outline-secondary flex-fill">
-          📁 Importer
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-front')" %>
-        </label>
-        <label class="btn btn-outline-primary flex-fill">
-          📷 Prendre une photo
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                capture: "environment",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-front')" %>
-        </label>
+    <%# Bloc statut : collé directement sous la caméra %>
+    <div class="bg-white border-top flex-shrink-0">
+      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
+        <div>
+          <p class="mb-0 fw-semibold">Tag</p>
+          <p class="mb-0 text-muted small">Étiquette</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span id="status-tag-text" class="text-muted small">STATUS</span>
+          <span id="status-tag-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        </div>
       </div>
-      <img id="preview-front" class="mt-2 rounded w-100 d-none">
+      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
+        <div>
+          <p class="mb-0 fw-semibold">Devant</p>
+          <p class="mb-0 text-muted small">Face du vêtement</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span id="status-front-text" class="text-muted small">STATUS</span>
+          <span id="status-front-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        </div>
+      </div>
+      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
+        <div>
+          <p class="mb-0 fw-semibold">Derrière</p>
+          <p class="mb-0 text-muted small">Dos du vêtement</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span id="status-back-text" class="text-muted small">STATUS</span>
+          <span id="status-back-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        </div>
+      </div>
+      <div class="p-3">
+        <%= f.submit "Lancer l'analyse", id: "submit-btn", class: "btn btn-primary btn-lg w-100", disabled: true %>
+      </div>
     </div>
 
-    <%# --- Photo 3 : Derrière --- %>
-    <div class="card mb-3 p-3">
-      <p class="fw-semibold mb-2">📸 Derrière du vêtement</p>
-      <div class="d-flex gap-2">
-        <label class="btn btn-outline-secondary flex-fill">
-          📁 Importer
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-back')" %>
-        </label>
-        <label class="btn btn-outline-primary flex-fill">
-          📷 Prendre une photo
-          <%= f.file_field :photos,
-                multiple: true,
-                accept: "image/*",
-                capture: "environment",
-                class: "d-none",
-                onchange: "previewPhoto(this, 'preview-back')" %>
-        </label>
-      </div>
-      <img id="preview-back" class="mt-2 rounded d-none" style="width: 150px; height: 150px; object-fit: cover;">
-    </div>
-
-    <%= f.submit "Lancer l'analyse", class: "btn btn-primary btn-lg w-100" %>
   <% end %>
 </div>
 
 <script>
-  function previewPhoto(input, previewId) {
-    const preview = document.getElementById(previewId)
-    const file = input.files[0]
-    if (!file) return
-    preview.src = URL.createObjectURL(file)
-    preview.classList.remove("d-none")
+  let step = 1
+
+  window.onload = function() {
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(function(stream) {
+        document.getElementById("camera-feed").srcObject = stream
+      })
+  }
+
+  function capturerPhoto() {
+    const video  = document.getElementById("camera-feed")
+    const canvas = document.getElementById("canvas")
+
+    canvas.width  = video.videoWidth
+    canvas.height = video.videoHeight
+    canvas.getContext("2d").drawImage(video, 0, 0)
+
+    canvas.toBlob(function(blob) {
+      const fichier   = new File([blob], "photo.jpg", { type: "image/jpeg" })
+      const transfert = new DataTransfer()
+      transfert.items.add(fichier)
+
+      if (step === 1) {
+        document.getElementById("input-tag").files = transfert.files
+        tagPris()
+      } else if (step === 2) {
+        document.getElementById("input-front").files = transfert.files
+        devantPris()
+      } else if (step === 3) {
+        document.getElementById("input-back").files = transfert.files
+        derrierePris()
+      }
+    })
+  }
+
+  function tagPris() {
+    document.getElementById("status-tag-dot").style.background = "#198754"
+    document.getElementById("status-tag-text").textContent = "OK"
+    document.getElementById("status-tag-text").style.color = "#198754"
+    document.getElementById("scan-text").textContent = "SCAN FRONT PICTURE"
+    step = 2
+  }
+
+  function devantPris() {
+    document.getElementById("status-front-dot").style.background = "#198754"
+    document.getElementById("status-front-text").textContent = "OK"
+    document.getElementById("status-front-text").style.color = "#198754"
+    document.getElementById("scan-text").textContent = "SCAN BACK PICTURE"
+    step = 3
+  }
+
+  function derrierePris() {
+    document.getElementById("status-back-dot").style.background = "#198754"
+    document.getElementById("status-back-text").textContent = "OK"
+    document.getElementById("status-back-text").style.color = "#198754"
+    document.getElementById("scan-text").textContent = "C'est bon !"
+    document.getElementById("submit-btn").disabled = false
+    step = 4
   }
 </script>
