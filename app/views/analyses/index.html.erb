@@ -16,14 +16,14 @@
 
     <ul class="list-group">
       <% @analyses.each do |analysis| %>
-        <% photo = analysis.chat&.messages&.joins(:photos_attachments)&.first&.photos&.first %>
+        <% photo = analysis.chat&.messages&.joins(:photos_attachments)&.second&.photos&.first %>
         <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
             <% else %>
               <div class="chat-thumbnail d-flex align-items-center justify-content-center bg-light">
-                <span>👟</span>
+                <span>🥼</span>
               </div>
             <% end %>
 
@@ -34,7 +34,18 @@
             </div>
           </div>
 
-          <%= link_to analysis.score ? "#{analysis.score}/10" : "–", analysis_path(analysis), class: "btn btn_sneaky_inline" %>
+          <% if analysis.score %>
+            <% if analysis.score < 2.5 %>
+              <% couleur = "danger" %>
+            <% elsif analysis.score < 7.5 %>
+              <% couleur = "warning" %>
+            <% else %>
+              <% couleur = "success" %>
+            <% end %>
+            <span class="text-muted"><%= analysis.score %>/10 <span class="text-<%= couleur %>">●</span></span>
+          <% else %>
+            <span class="text-muted">–</span>
+          <% end %>
         </li>
       <% end %>
     </ul>
