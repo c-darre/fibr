@@ -8,7 +8,6 @@ class MessagesController < ApplicationController
     message = chat.messages.build(role: :user)
     message.photos.attach(message_params[:photos]) if message_params[:photos].present?
     message.save!
-
     @analysis.processing!
     AnalyzeGarmentJob.perform_later(@analysis.id)
 
