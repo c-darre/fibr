@@ -1,6 +1,14 @@
 class AnalysesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:create, :add_pictures, :show]
 
+  def index
+    @analyses = current_user.analyses
+    if params[:query].present?
+      @analyses = @analyses.joins(chat: :messages).where("messages.content ILIKE ?", "%#{params[:query]}%").distinct
+    end
+  end
+
+
   def create
     @analysis = Analysis.new(user: current_user)
     @analysis.save!
@@ -15,7 +23,6 @@ class AnalysesController < ApplicationController
 
   def show
     @analysis = Analysis.find(params[:id])
-
     respond_to do |format|
       format.html
       format.json { render json: { status: @analysis.status } }
