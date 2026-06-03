@@ -4,8 +4,33 @@ body {
 
   h1 {
     font-family: "Albert Sans", "Helvetica", "sans-serif";
+    font-size: 55px;
+    font-weight: 900;
     text-transform: uppercase;
     text-align: left;
     padding: 20px;
+    margin: 0; // Clears default margins that might skew vertical centering
   }
+}
+
+.homepage-wrapper {
+  // Assuming your fixed-bottom navbar is roughly 60px-70px tall,
+  // adding padding-bottom forces the "vertical center" to shift upward
+  // so it accounts for the navbar room perfectly!
+  padding-bottom: 70px;
+}
+
+.logo-container {
+  padding: 30px;
+}
+
+.homepage-logo {
+  width: 100%;  // Adjust this value to make it bigger or smaller
+  height: auto;  // Keeps the aspect ratio perfectly intact
+  display: block;
+
+}
+
+.arrow-down {
+  font-size: 40px;
 }
