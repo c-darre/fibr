@@ -3,7 +3,11 @@ class AnalysesController < ApplicationController
 
   def index
     @analyses = current_user.analyses
+    if params[:query].present?
+      @analyses = @analyses.joins(chat: :messages).where("messages.content ILIKE ?", "%#{params[:query]}%").distinct
+    end
   end
+
 
   def create
     @analysis = Analysis.new(user: current_user)
