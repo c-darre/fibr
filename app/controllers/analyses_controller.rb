@@ -1,6 +1,10 @@
 class AnalysesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:create, :add_pictures, :show]
 
+  def index
+    @analyses = current_user.analyses
+  end
+
   def create
     @analysis = Analysis.new(user: current_user)
     @analysis.save!

@@ -1,0 +1,42 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My previous scans</h2>
+    <%= button_to "New analyse", analyses_path, method: :post, class: "btn btn_sneaky" %>
+  </div>
+
+  <% if @analyses.empty? %>
+    <p class="text-muted">You don't have a history yet!</p>
+  <% else %>
+    <%= form_with url: analyses_path, method: :get, local: true, class: "mb-4" do |f| %>
+      <div class="input-group">
+        <%= f.text_field :query, value: params[:query], placeholder: "Search History…", class: "form-control" %>
+        <%= f.submit "Search", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <ul class="list-group">
+      <% @analyses.each do |analysis| %>
+        <% photo = analysis.chat&.messages&.joins(:photos_attachments)&.first&.photos&.first %>
+        <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
+          <div class="d-flex align-items-center gap-3">
+            <% if photo %>
+              <%= image_tag photo, class: "chat-thumbnail" %>
+            <% else %>
+              <div class="chat-thumbnail d-flex align-items-center justify-content-center bg-light">
+                <span>👟</span>
+              </div>
+            <% end %>
+
+            <div>
+              <% title = analysis.chat&.messages&.find_by(role: :assistant)&.content&.truncate(50) %>
+              <h5 class="mb-1"><%= link_to title.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %></h5>
+              <small class="text-muted"><%= analysis.status %></small>
+            </div>
+          </div>
+
+          <%= link_to analysis.score ? "#{analysis.score}/10" : "–", analysis_path(analysis), class: "btn btn_sneaky_inline" %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
