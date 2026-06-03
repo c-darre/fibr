@@ -1,12 +1,33 @@
 .navbar-fibr {
   justify-content: space-between;
   background: rgb(0, 0, 0);
-}
-
-.navbar-fibr .navbar-collapse {
   flex-grow: 0;
+
 }
 
-.navbar-fibr .navbar-brand img {
-  width: 40px;
+
+.navbar-fibr .nav-icon {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.6rem;
+  text-decoration: none;
+}
+
+.navbar-fibr .nav-add {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, -50%); // lifts the circle so it straddles the top edge
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #000;
+  color: #000;
+  font-size: 2rem;
+  text-decoration: none;
 }
