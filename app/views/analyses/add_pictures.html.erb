@@ -3,14 +3,14 @@
   <%= form_with model: [@analysis, @message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
     <%# 3 inputs cachés pour la caméra %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag", name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front",name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back",name: "message[photos][]" %>
 
     <%# 3 inputs cachés pour l'upload galerie (sans capture) %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag",name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front", name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back", name: "message[photos][]" %>
 
     <%# Canvas invisible : sert à photographier une image du flux vidéo %>
     <canvas id="canvas" class="d-none"></canvas>
