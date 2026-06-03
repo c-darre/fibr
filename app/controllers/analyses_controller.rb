@@ -19,7 +19,6 @@ class AnalysesController < ApplicationController
 
   def show
     @analysis = Analysis.find(params[:id])
-
     respond_to do |format|
       format.html
       format.json { render json: { status: @analysis.status } }
