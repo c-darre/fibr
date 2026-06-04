@@ -73,5 +73,5 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "ruby-openai", "~> 8.3"
+gem "ruby_llm"
 gem "cloudinary", "~> 2.4"
