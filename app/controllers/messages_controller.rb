@@ -1,7 +1,7 @@
 class MessagesController < ApplicationController
   skip_before_action :authenticate_user!
 
-  def create
+  def create_with_pictures
     @analysis = Analysis.find(params[:analysis_id])
     chat = @analysis.chat
 

@@ -1,6 +1,6 @@
 <div class="d-flex flex-column" style="max-width: 480px; margin: auto; height: 100vh;">
 
-  <%= form_with model: [@analysis, @message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
+  <%= form_with model: [@analysis, @message], local: true, url: create_with_pictures_analysis_message_path(@analysis, Message), html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
     <%# 3 inputs cachés pour la caméra %>
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag", name: "message[photos][]" %>
@@ -52,7 +52,7 @@
                          border: 2px solid white;
                          cursor: pointer; color: white;
                          font-size: 1.5rem; line-height: 1;">
-                         
+
             +
           </button>
 
