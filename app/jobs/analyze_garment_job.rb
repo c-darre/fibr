@@ -51,7 +51,7 @@ class AnalyzeGarmentJob < ApplicationJob
   # Collects temp file paths for all photos attached to this analysis
   def build_images(analysis)
     @tempfiles = []
-    analysis.chat.messages.flat_map do |message|
+    analysis.analysis_chat.messages.flat_map do |message|
       message.photos.map { |photo| photo_to_tempfile(photo) }
     end
   end
@@ -74,7 +74,7 @@ class AnalyzeGarmentJob < ApplicationJob
 
   # Saves the AI summary, overall score, and 5 criteria to the database
   def save_results(analysis, parsed)
-    analysis.chat.messages.create!(role: :assistant, content: parsed["summary"])
+    analysis.analysis_chat.messages.create!(role: :assistant, content: parsed["summary"])
     parsed["criteria"].each do |c|
       analysis.criteria.create!(name: c["name"], detail: c["detail"], score: c["score"])
     end
