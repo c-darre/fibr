@@ -34,7 +34,7 @@
         class: "btn btn-secondary text-start fw-semibold" do %>
         + New analysis
       <% end %>
-      <%= link_to "Historique",
+      <%= link_to "History",
         analyses_path,
         class: "btn btn-light text-start fw-semibold" %>
     </div>
@@ -65,7 +65,7 @@
         <p class="text-muted small mb-2">
           <%= current_user.email %>
         </p>
-        <%= link_to "Déconnexion",
+        <%= link_to "Sign out",
           destroy_user_session_path,
           data: { turbo_method: :delete },
           class: "btn btn-outline-secondary w-100 fw-semibold" %>
