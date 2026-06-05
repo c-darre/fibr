@@ -4,13 +4,15 @@ body {
 
   h1 {
     font-family: "Albert Sans", "Helvetica", "sans-serif";
-    font-size: 55px;
+    font-size: 45px;
     font-weight: 900;
+    letter-spacing: 3px;
     text-transform: uppercase;
     text-align: left;
     padding: 20px;
     margin: 0; // Clears default margins that might skew vertical centering
   }
+
 }
 
 .homepage-wrapper {
