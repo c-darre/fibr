@@ -23,6 +23,11 @@ class QuestionnaryJob < ApplicationJob
   def run_ecobalyse(analysis, parsed)
     fields = analysis.ecobalyse_fields || {}
     composition = fields["composition"] || []
+    if composition.blank?
+      analysis.questionnary_chat.messages.create!(role: :assistant,
+        content: "Impossible de calculer l'impact : la composition n'a pas pu être lue sur l'étiquette.")
+      return
+    end
     materials = EcobalyseService.build_materials(composition)
     product = parsed["product_type"] || fields["product_type"]
     mass = EcobalyseService.estimate_mass(product, parsed["size"])

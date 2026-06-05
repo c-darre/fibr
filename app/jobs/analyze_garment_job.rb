@@ -74,6 +74,7 @@ class AnalyzeGarmentJob < ApplicationJob
 
   # Saves the AI summary, overall score, and 5 criteria to the database
   def save_results(analysis, parsed)
+    analysis.criteria.destroy_all
     analysis.analysis_chat.messages.create!(role: :assistant, content: parsed["summary"])
     parsed["criteria"].each do |c|
       analysis.criteria.create!(name: c["name"], detail: c["detail"], score: c["score"])
