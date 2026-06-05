@@ -15,13 +15,13 @@
       <% if message.role == "user" %>
         <div class="align-self-end" style="max-width: 75%;">
           <div class="p-3 text-white" style="background-color: #000; font-family: 'Albert Sans', sans-serif;">
-            <%= message.content %>
+            <%= raw(render_markdown(message.content)) %>
           </div>
         </div>
       <% else %>
         <div class="align-self-start" style="max-width: 75%;">
           <div class="p-3 border border-dark border-2" style="background-color: white; font-family: 'Albert Sans', sans-serif;">
-            <%= message.content %>
+            <%= raw(render_markdown(message.content)) %>
           </div>
         </div>
       <% end %>
