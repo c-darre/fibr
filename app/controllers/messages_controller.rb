@@ -30,9 +30,16 @@ class MessagesController < ApplicationController
       message.save!
       DiscussionJob.perform_later(@chat.id)
     when "questionnary"
+      message.content = message_params[:content]
+      message.save!
+      QuestionnaryJob.perform_later(@chat.id)
     end
 
-    redirect_to analysis_path(@analysis)
+    if @chat.kind == "questionnary"
+      redirect_to questionnary_analysis_path(@analysis)
+    else
+      redirect_to analysis_path(@analysis)
+    end
   end
 
   private

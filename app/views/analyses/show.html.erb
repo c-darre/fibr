@@ -64,7 +64,22 @@
       <% end %>
     </div>
 
-    <div class="mt-5 text-center">
+    <% if @analysis.co2.present? %>
+      <div class="card p-4 mb-4 shadow-sm">
+        <h5 class="mb-3">Impact environnemental estimé</h5>
+        <p class="mb-1">CO₂ : <strong><%= @analysis.co2.round(2) %> kg</strong></p>
+        <p class="mb-1">Eau : <strong><%= @analysis.water.round(2) %></strong></p>
+        <p class="mb-1">Score global : <strong><%= @analysis.global_score.round(0) %></strong></p>
+        <p class="text-muted small mt-2">Estimation basée sur la taille <%= @analysis.garment_size %>.</p>
+      </div>
+    <% else %>
+      <div class="text-center mb-4">
+        <%= button_to "Info en plus", start_questionnary_analysis_path(@analysis),
+              method: :post, class: "btn btn-outline-primary" %>
+      </div>
+    <% end %>
+
+    <div class="mt-4 text-center">
       <%= button_to "Nouvelle analyse", analyses_path,
             method: :post,
             class:  "btn btn_fibr_outline" %>
