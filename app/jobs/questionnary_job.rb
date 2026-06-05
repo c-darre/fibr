@@ -21,8 +21,7 @@ class QuestionnaryJob < ApplicationJob
   private
 
   def run_ecobalyse(analysis, parsed)
-    # composition vient de l'analyse qualité (à récupérer selon ce que le collègue stocke)
-    composition = [] # TODO: brancher sur la vraie composition
+    composition = [] # TODO: brancher sur la vraie composition (merge collègue)
     materials = EcobalyseService.build_materials(composition)
     mass = EcobalyseService.estimate_mass(parsed["product_type"], parsed["size"])
 
@@ -32,8 +31,14 @@ class QuestionnaryJob < ApplicationJob
       materials: materials
     ).call
 
-    # TODO: stocker result (co2, water, global_score) — besoin migration
-    Rails.logger.info "Ecobalyse: #{result.inspect}"
+    return if result[:error]
+
+    analysis.update!(
+      co2: result[:co2],
+      water: result[:water],
+      global_score: result[:global_score],
+      garment_size: parsed["size"]
+    )
   end
 
   def questionnary_prompt
