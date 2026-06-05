@@ -1,15 +1,84 @@
-<nav class="navbar fixed-bottom navbar-expand-sm navbar-fibr">
-  <div class="nav-bottom container-fluid">
-    <%= link_to  "#", class: "nav-icon" do %>
-      <i class="fa-regular fa-images"></i>
-    <% end %>
+<nav class="navbar navbar-dark bg-black">
+  <div class="container d-flex align-items-center gap-3">
 
-    <%= button_to analyses_path, method: :post, class: "nav-add" do %>
-      <i class="fa-regular fa-plus"></i>
-    <% end %>
+    <button class="navbar-toggler border-0 px-0"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#mobileMenu">
+      <i class="fa-solid fa-bars custom-burger-icon"></i>
+    </button>
 
-    <%= link_to "#", class: "nav-icon" do %>
-      <i class="fa-regular fa-circle-user"></i>
-    <% end %>
+    <%= link_to "FIB___R",
+      root_path,
+      class: "navbar-brand fw-bold mb-0 text-white" %>
   </div>
 </nav>
+
+<div class="offcanvas bg-white offcanvas-start"
+     tabindex="-1"
+     id="mobileMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title fw-bold" style="color: black;">
+      FIB___R
+    </h5>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas">
+    </button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column ">
+    <div class="d-grid gap-2">
+      <%= button_to analyses_path,
+        method: :post,
+        class: "btn btn-secondary text-start fw-semibold" do %>
+        + New analysis
+      <% end %>
+      <%= link_to "Historique",
+        analyses_path,
+        class: "btn btn-light text-start fw-semibold" %>
+    </div>
+
+    <hr>
+
+    <% if user_signed_in? %>
+      <% recent_analyses = current_user.analyses
+          .order(created_at: :desc)
+          .limit(3) %>
+      <% if recent_analyses.any? %>
+        <div class="mt-4">
+          <p class="text-uppercase text-muted fw-bold small mb-3">
+            Recent
+          </p>
+          <div class="d-flex flex-column gap-2">
+            <% recent_analyses.each do |analysis| %>
+              <%= link_to analysis_path(analysis),
+                class: "text-decoration-none px-3 py-2 card history-card text-dark small fw-semibold" do %>
+                <%= "title test" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mt-auto">
+        <p class="text-muted small mb-2">
+          <%= current_user.email %>
+        </p>
+        <%= link_to "Déconnexion",
+          destroy_user_session_path,
+          data: { turbo_method: :delete },
+          class: "btn btn-outline-secondary w-100 fw-semibold" %>
+      </div>
+    <% else %>
+      <div class="mt-auto d-grid gap-2">
+        <%= link_to "Se connecter",
+          new_user_session_path,
+          class: "btn btn-outline-secondary" %>
+        <%= link_to "S'inscrire",
+          new_user_registration_path,
+          class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

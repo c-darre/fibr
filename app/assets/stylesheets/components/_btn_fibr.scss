@@ -1,10 +1,12 @@
 .btn_fibr {
   font-family: "Albert Sans", sans-serif;
   font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   background-color: #000000;
   color: white;
-  padding: 15px 30px;
+  padding: 5px 25px;
   margin: 5px;
   border-radius: 0%;
 
@@ -18,18 +20,19 @@
     color: white;
   }
 
-
 }
 
 .btn_fibr_outline {
   font-family: "Albert Sans", sans-serif;
   font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   border-color: #000000;
   border-width: 2px;
   color: #000000;
   background-color: white;
-  padding: 15px 30px;
+  padding: 5px 25px;
   margin: 5px;
 
   &:hover{
