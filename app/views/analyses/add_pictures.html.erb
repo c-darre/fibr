@@ -1,3 +1,4 @@
+<div class="d-flex flex-column" style="max-width: 480px; margin: auto; height: 100vh;">
 
   <%= form_with model: [@analysis, @analysis.analysis_chat, Message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
@@ -54,9 +55,10 @@
 
             +
           </button>
+
         </div>
 
-        <h2 id="scan-text" class="fw-bold mb-0" style="color: white; font-size: 1.2rem;">SCAN YOUR TAG</h2>
+        <h2 id="scan-text" class="fw-bold mb-0" style="color: white; letter-spacing: 1px; font-size: 1.2rem;">SCAN YOUR TAG</h2>
       </div>
 
     </div>
@@ -94,7 +96,7 @@
         </div>
       </div>
       <div class="p-3">
-        <%= f.submit "Start analysis", id: "submit-btn", class: "btn btn_fibr", disabled: true %>
+        <%= f.submit "Start analysis", id: "submit-btn", class: "btn btn_fibr btn-lg w-100", disabled: true %>
       </div>
     </div>
 
