@@ -30,6 +30,22 @@ class EcobalyseService
       { id: uuid, share: item["percentage"].to_f / 100.0 }
     end
   end
+  # Poids de base (kg) par type, taille M de référence
+  BASE_WEIGHTS = {
+    "tshirt" => 0.15, "chemise" => 0.2, "jean" => 0.6, "pantalon" => 0.45,
+    "pull" => 0.4, "jupe" => 0.3, "manteau" => 1.2, "calecon" => 0.08,
+    "chaussettes" => 0.05, "maillot-de-bain" => 0.15, "slip" => 0.06
+  }.freeze
+
+  SIZE_COEFFICIENTS = {
+    "XS" => 0.8, "S" => 0.9, "M" => 1.0, "L" => 1.15, "XL" => 1.3, "XXL" => 1.45
+  }.freeze
+
+  def self.estimate_mass(product, size)
+    base = BASE_WEIGHTS[product.to_s.downcase] || 0.3
+    coef = SIZE_COEFFICIENTS[size.to_s.upcase] || 1.0
+    (base * coef).round(3)
+  end
 
   def initialize(mass:, product:, materials:)
     @mass = mass            # poids en kg (ex: 0.17)
