@@ -1,16 +1,83 @@
-<nav class="navbar fixed-bottom navbar-expand-sm navbar-fibr">
-  <div class="nav-bottom container-fluid">
-    <%= link_to "#", class: "nav-icon" do %>
-      <%= image_tag "cards_stack_40dp_FFFFFF_FILL0_wght200_GRAD0_opsz48.svg", class: "cards_stack", alt: "cards icon" %>
+<nav class="navbar navbar-light mb-4 navbar-">
+  <div class="container d-flex align-items-center gap-3">
+    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#mobileMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <% end %>
-
-    <%= button_to analyses_path, method: :post, class: "nav-add" do %>
-      <i class="fa-regular fa-plus"></i>
-    <% end %>
-
-    <%= link_to "#", class: "nav-icon" do %>
-      <%= image_tag "account_circle_40dp_FFFFFF_FILL0_wght200_GRAD0_opsz40", class: "account_circle", alt: "profile icon" %>
-    <% end %>
+    <%= link_to "FIB___R",
+      root_path,
+      class: "navbar-brand fw-bold mb-0" %>
   </div>
 </nav>
+
+<div class="offcanvas bg-white offcanvas-start"
+     tabindex="-1"
+     id="mobileMenu">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title fw-bold" style="color: black;">
+      FIB___R
+    </h5>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas">
+    </button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column ">
+    <div class="d-grid gap-2">
+      <%= button_to analyses_path,
+        method: :post,
+        class: "btn btn-secondary text-start fw-semibold" do %>
+        + New analysis
+      <% end %>
+      <%= link_to "Historique",
+        analyses_path,
+        class: "btn btn-light text-start fw-semibold" %>
+    </div>
+
+    <hr>
+
+    <% if user_signed_in? %>
+      <% recent_analyses = current_user.analyses
+          .order(created_at: :desc)
+          .limit(3) %>
+      <% if recent_analyses.any? %>
+        <div class="mt-4">
+          <p class="text-uppercase text-muted fw-bold small mb-3">
+            Recent
+          </p>
+          <div class="d-flex flex-column gap-2">
+            <% recent_analyses.each do |analysis| %>
+              <%= link_to analysis_path(analysis),
+                class: "text-decoration-none px-3 py-2 card history-card text-dark small fw-semibold" do %>
+                <%= "title test" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="mt-auto">
+        <p class="text-muted small mb-2">
+          <%= current_user.email %>
+        </p>
+        <%= link_to "Déconnexion",
+          destroy_user_session_path,
+          data: { turbo_method: :delete },
+          class: "btn btn-outline-secondary w-100 fw-semibold" %>
+      </div>
+    <% else %>
+      <div class="mt-auto d-grid gap-2">
+        <%= link_to "Se connecter",
+          new_user_session_path,
+          class: "btn btn-light" %>
+        <%= link_to "S'inscrire",
+          new_user_registration_path,
+          class: "btn btn-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>

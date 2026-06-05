@@ -44,7 +44,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_103955) do
 
   create_table "analyses", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.integer "score"
     t.integer "status"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
@@ -70,7 +69,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_103955) do
 
   create_table "messages", force: :cascade do |t|
     t.bigint "chat_id", null: false
-    t.text "content"
     t.datetime "created_at", null: false
     t.integer "role"
     t.datetime "updated_at", null: false

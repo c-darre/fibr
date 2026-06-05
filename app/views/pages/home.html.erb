@@ -5,9 +5,13 @@
   </div>
 
   <div class="container d-flex flex-column justify-content-center flex-grow-1">
-    <h1 class="">Check the quality of your clothes</h1>
+    <h1 class="mb-5">Check the quality of your clothes</h1>
     <div class="arrow-down text-center">
-      <i class="fa-solid fa-arrow-down-long" style="color: rgb(0, 0, 0);"></i>
+        <%= button_to analyses_path,
+        method: :post,
+        class: "btn btn_fibr_outline text-start fw-semibold" do %>
+        Start analysis
+      <% end %>
     </div>
   </div>
 
