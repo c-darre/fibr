@@ -5,7 +5,7 @@ class QuestionnaryJob < ApplicationJob
     chat = Chat.find(chat_id)
     history = chat.messages.map { |m| { role: m.role, content: m.content } }
 
-    llm = RubyLLM.chat(model: "gpt-4o")
+    llm = RubyLLM.chat(model: "claude-sonnet-4-6")
     llm.with_instructions(questionnary_prompt)
     response = llm.ask(history.to_json)
     cleaned = response.content.gsub(/```json|```/, "").strip
@@ -13,9 +13,9 @@ class QuestionnaryJob < ApplicationJob
 
     chat.messages.create!(role: :assistant, content: parsed["message"])
 
-    if parsed["complete"]
-      run_ecobalyse(chat.analysis, parsed)
-    end
+    return unless parsed["complete"]
+
+    run_ecobalyse(chat.analysis, parsed)
   end
 
   private
@@ -25,7 +25,7 @@ class QuestionnaryJob < ApplicationJob
     composition = fields["composition"] || []
     if composition.blank?
       analysis.questionnary_chat.messages.create!(role: :assistant,
-        content: "Impossible de calculer l'impact : la composition n'a pas pu être lue sur l'étiquette.")
+                                                  content: "Impossible de calculer l'impact : la composition n'a pas pu être lue sur l'étiquette.")
       return
     end
     materials = EcobalyseService.build_materials(composition)

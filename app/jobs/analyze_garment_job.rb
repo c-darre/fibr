@@ -40,7 +40,7 @@ class AnalyzeGarmentJob < ApplicationJob
     return stub_result unless ENV["VISION_SERVICE"] == "real"
 
     images   = build_images(analysis)
-    chat     = RubyLLM.chat(model: "gpt-4o")
+    chat     = RubyLLM.chat(model: "claude-sonnet-4-6")
     chat.with_instructions(system_prompt)
     response = chat.ask(user_message, with: { images: images })
     cleaned  = response.content.gsub(/```json|```/, "").strip
