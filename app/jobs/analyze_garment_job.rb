@@ -22,6 +22,7 @@ class AnalyzeGarmentJob < ApplicationJob
   def stub_result
     sleep 2 # simulates AI "thinking" so you can see the loading screen
     {
+      "garment_type" => "T-shirt",
       "summary" => "Simulated analysis: good quality fabric, regular stitching, clean finishing.",
       "score" => 8,
       "criteria" => [
@@ -79,7 +80,7 @@ class AnalyzeGarmentJob < ApplicationJob
     parsed["criteria"].each do |c|
       analysis.criteria.create!(name: c["name"], detail: c["detail"], score: c["score"])
     end
-    analysis.update!(score: parsed["score"], ecobalyse_fields: parsed["ecobalyse_fields"])
+    analysis.update!(score: parsed["score"], garment_type: parsed["garment_type"], ecobalyse_fields: parsed["ecobalyse_fields"])
   end
 
   # Tells the AI what role to play and how to format its response
