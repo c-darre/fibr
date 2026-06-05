@@ -17,9 +17,7 @@
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.joins(:photos_attachments)&.second&.photos&.first %>
-
-        <li class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white border shadow-sm history-card">
-
+        <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
@@ -28,10 +26,7 @@
             <% end %>
 
             <div>
-              <% title = analysis.analysis_chat&.messages&.find_by(role: :assistant)&.content&.truncate(40) %>
-              <h5 class="mb-1 analysis-card-title">
-                <%= link_to title.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %>
-              </h5>
+              <h5 class="mb-1"><%= link_to analysis.garment_type.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %></h5>
               <small class="text-muted"><%= analysis.status %></small>
             </div>
           </div>

@@ -144,8 +144,9 @@ class AnalyzeGarmentJob < ApplicationJob
       ===================== OUTPUT — STRICT JSON ONLY =====================
       Respond in English, as a strict JSON object with this exact shape, nothing outside it:
       {
-        "summary": "photo usability first, then short honest verdict",
-        "score": <integer 0-10>,
+        "garment_type": "the type of garment (e.g. T-shirt, Jacket, Jeans, Dress…)",
+        "summary": "photo usability assessment first (retake advice if needed), then a short honest verdict",
+        "score": <integer from 0 to 10>,
         "criteria": [
           { "name": "Material Quality", "detail": "...", "score": <0-10> },
           { "name": "Stitching & Seams", "detail": "...", "score": <0-10> },

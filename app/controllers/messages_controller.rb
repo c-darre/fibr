@@ -29,6 +29,7 @@ class MessagesController < ApplicationController
       message.content = message_params[:content]
       message.save!
       DiscussionJob.perform_later(@chat.id)
+      redirect_to analysis_discussion_path(@analysis) and return
     when "questionnary"
       message.content = message_params[:content]
       message.save!

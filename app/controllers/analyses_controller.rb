@@ -13,6 +13,7 @@ class AnalysesController < ApplicationController
     @analysis = Analysis.new(user: current_user)
     @analysis.save!
     @analysis.chats.build(kind: :analysis).save
+    @analysis.chats.build(kind: :discussion).save
     redirect_to add_pictures_analysis_path(@analysis)
   end
 
