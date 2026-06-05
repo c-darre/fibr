@@ -78,7 +78,7 @@ class AnalyzeGarmentJob < ApplicationJob
     parsed["criteria"].each do |c|
       analysis.criteria.create!(name: c["name"], detail: c["detail"], score: c["score"])
     end
-    analysis.update!(score: parsed["score"])
+    analysis.update!(score: parsed["score"], ecobalyse_fields: parsed["ecobalyse_fields"])
   end
 
   # Tells the AI what role to play and how to format its response

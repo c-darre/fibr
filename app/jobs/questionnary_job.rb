@@ -21,13 +21,15 @@ class QuestionnaryJob < ApplicationJob
   private
 
   def run_ecobalyse(analysis, parsed)
-    composition = [] # TODO: brancher sur la vraie composition (merge collègue)
+    fields = analysis.ecobalyse_fields || {}
+    composition = fields["composition"] || []
     materials = EcobalyseService.build_materials(composition)
-    mass = EcobalyseService.estimate_mass(parsed["product_type"], parsed["size"])
+    product = parsed["product_type"] || fields["product_type"]
+    mass = EcobalyseService.estimate_mass(product, parsed["size"])
 
     result = EcobalyseService.new(
       mass: mass,
-      product: parsed["product_type"],
+      product: product,
       materials: materials
     ).call
 
