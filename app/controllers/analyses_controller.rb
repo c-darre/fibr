@@ -4,7 +4,7 @@ class AnalysesController < ApplicationController
   def index
     @analyses = current_user.analyses
     if params[:query].present?
-      @analyses = @analyses.joins(chat: :messages).where("messages.content ILIKE ?", "%#{params[:query]}%").distinct
+      @analyses = @analyses.joins(analysis_chat: :messages).where("messages.content ILIKE ?", "%#{params[:query]}%").distinct
     end
   end
 
@@ -12,13 +12,13 @@ class AnalysesController < ApplicationController
   def create
     @analysis = Analysis.new(user: current_user)
     @analysis.save!
-    @analysis.create_chat!
+    @analysis.chats.build(kind: :analysis).save
     redirect_to add_pictures_analysis_path(@analysis)
   end
 
   def add_pictures
     @analysis = Analysis.find(params[:id])
-    @message = Message.new
+    Message.new(chat: @analysis.analysis_chat)
   end
 
   def show

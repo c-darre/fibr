@@ -2,13 +2,11 @@ Rails.application.routes.draw do
   devise_for :users
   root "pages#home"
 
-  resources :analyses, only: [:index, :create, :show] do
+   resources :analyses, only: [:index, :create, :show] do
     get :add_pictures, on: :member
-    resources :messages, only: [:create] 
-  end
-
-  resources :chats, only: [:show] do
-    resources :messages, only: [:create]
+    resources :chats, only: [] do
+      resources :messages, only: [:create]
+    end
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
