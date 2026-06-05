@@ -1,7 +1,7 @@
-<div class="container mt-5">
+<div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>My previous scans</h2>
-    <%= button_to "New analyse", analyses_path, method: :post, class: "btn btn-secondary" %>
+    <h3>My previous scans</h3>
+    <%= button_to "New analyse", analyses_path, method: :post, class: "btn btn-outline-secondary" %>
   </div>
 
   <% if @analyses.empty? %>
@@ -14,38 +14,45 @@
       </div>
     <% end %>
 
-    <ul class="list-group">
+    <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.joins(:photos_attachments)&.second&.photos&.first %>
-        <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
+
+        <li class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white border shadow-sm history-card">
+
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
             <% else %>
-              <div class="chat-thumbnail d-flex align-items-center justify-content-center bg-light">
-                <span>🥼</span>
-              </div>
+              <div class="chat-thumbnail placeholder-emoji">🥼</div>
             <% end %>
 
             <div>
-              <% title = analysis.analysis_chat&.messages&.find_by(role: :assistant)&.content&.truncate(50) %>
-              <h5 class="mb-1"><%= link_to title.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %></h5>
+              <% title = analysis.analysis_chat&.messages&.find_by(role: :assistant)&.content&.truncate(40) %>
+              <h5 class="mb-1 analysis-card-title">
+                <%= link_to title.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %>
+              </h5>
               <small class="text-muted"><%= analysis.status %></small>
             </div>
           </div>
 
-          <% if analysis.score %>
-            <% if analysis.score < 2.5 %>
-              <% couleur = "danger" %>
-            <% elsif analysis.score < 7.5 %>
-              <% couleur = "warning" %>
+          <div class="m-2 text">
+            <% if analysis.score %>
+              <% if analysis.score < 2.5 %>
+                <% couleur = "danger" %>
+              <% elsif analysis.score < 7.5 %>
+                <% couleur = "warning" %>
+              <% else %>
+                <% couleur = "success" %>
+              <% end %>
+              <span class="text-muted">
+                <%= analysis.score %>/10 <span class="text-<%= couleur %> ms-1">●</span>
+              </span>
             <% else %>
-              <% couleur = "success" %>
+              <span class="text-muted">–</span>
             <% end %>
-            <span class="text-muted"><%= analysis.score %>/10 <span class="text-<%= couleur %>">●</span></span>
-          <% else %>
-            <span class="text-muted">–</span>
-          <% end %>
+          </div>
+
         </li>
       <% end %>
     </ul>
