@@ -1,5 +1,5 @@
 class AnalysesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:create, :add_pictures, :show]
+  skip_before_action :authenticate_user!, only: [:create, :add_pictures, :show, :questionnary, :start_questionnary]
 
   def index
     @analyses = current_user.analyses
@@ -28,5 +28,16 @@ class AnalysesController < ApplicationController
       format.html
       format.json { render json: { status: @analysis.status } }
     end
+  end
+
+  def start_questionnary
+    @analysis = Analysis.find(params[:id])
+    @analysis.chats.create!(kind: :questionnary) unless @analysis.questionnary_chat
+    redirect_to questionnary_analysis_path(@analysis)
+  end
+
+  def questionnary
+    @analysis = Analysis.find(params[:id])
+    @chat = @analysis.questionnary_chat
   end
 end

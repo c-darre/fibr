@@ -43,12 +43,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_131004) do
   end
 
   create_table "analyses", force: :cascade do |t|
+    t.float "co2"
     t.datetime "created_at", null: false
     t.string "garment_type"
     t.integer "score"
     t.integer "status"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.float "water"
     t.index ["user_id"], name: "index_analyses_on_user_id"
   end
 

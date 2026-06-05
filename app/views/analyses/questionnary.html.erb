@@ -1,0 +1,20 @@
+<%= turbo_stream_from "chat_#{@chat.id}" %>
+
+<div class="container py-5" style="max-width: 700px;">
+  <h4 class="mb-4">Questionnaire environnemental</h4>
+
+  <div id="messages-container" class="mb-4">
+    <%= render @chat.messages.order(:created_at) %>
+  </div>
+
+  <% unless @analysis.co2.present? %>
+    <%= form_with url: analysis_chat_messages_path(@analysis, @chat), method: :post, local: true do |f| %>
+      <input type="text" name="message[content]" placeholder="Votre réponse (ex: taille M)" class="form-control mb-2" autocomplete="off">
+      <%= f.submit "Envoyer", class: "btn btn-primary" %>
+    <% end %>
+  <% else %>
+    <div class="alert alert-success">
+      Impact calculé ! <a href="<%= analysis_path(@analysis) %>">Voir les résultats</a>
+    </div>
+  <% end %>
+</div>

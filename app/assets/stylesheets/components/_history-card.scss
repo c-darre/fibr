@@ -1,0 +1,48 @@
+// .history-card {
+//   background-color: white;
+//   border-color: #000000;
+//   border-width: 1px;
+//   color: #000000;
+// }
+
+// Simple, beginner-friendly styles for the history items
+.history-card {
+  // border: 1px solid rgb(0, 0, 0); // Adds a clean outline boundary
+  background-color: #ffffff;
+  border-color: #000000;
+  border-width: 2px;
+  color: #000000;
+
+  // Style the text links inside the card
+  .analysis-card-title a {
+    color: #000000;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  h5 {
+    font-size: 18px;
+  }
+}
+
+// Our reliable thumbnail resizer code
+.chat-thumbnail {
+  width: 80px;
+  height: 80px;
+  border-radius: 2px;
+  object-fit: cover; // Automatically crops the image neatly to fit the box
+  flex-shrink: 0;    // Prevents the image from squeezing if the title is long
+
+  // Styles specifically for the fallback emoji box
+  &.placeholder-emoji {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f3f5; // matches Bootstrap's light gray background
+    font-size: 3rem;
+  }
+}

@@ -1,7 +1,7 @@
-<div class="container mt-5">
+<div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>My previous scans</h2>
-    <%= button_to "New analyse", analyses_path, method: :post, class: "btn btn_sneaky" %>
+    <h3>My previous scans</h3>
+    <%= button_to "New analyse", analyses_path, method: :post, class: "btn btn-outline-secondary" %>
   </div>
 
   <% if @analyses.empty? %>
@@ -14,7 +14,7 @@
       </div>
     <% end %>
 
-    <ul class="list-group">
+    <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.joins(:photos_attachments)&.second&.photos&.first %>
         <li class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
@@ -22,9 +22,7 @@
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
             <% else %>
-              <div class="chat-thumbnail d-flex align-items-center justify-content-center bg-light">
-                <span>🥼</span>
-              </div>
+              <div class="chat-thumbnail placeholder-emoji">🥼</div>
             <% end %>
 
             <div>
@@ -33,18 +31,23 @@
             </div>
           </div>
 
-          <% if analysis.score %>
-            <% if analysis.score < 2.5 %>
-              <% couleur = "danger" %>
-            <% elsif analysis.score < 7.5 %>
-              <% couleur = "warning" %>
+          <div class="m-2 text">
+            <% if analysis.score %>
+              <% if analysis.score < 2.5 %>
+                <% couleur = "danger" %>
+              <% elsif analysis.score < 7.5 %>
+                <% couleur = "warning" %>
+              <% else %>
+                <% couleur = "success" %>
+              <% end %>
+              <span class="text-muted">
+                <%= analysis.score %>/10 <span class="text-<%= couleur %> ms-1">●</span>
+              </span>
             <% else %>
-              <% couleur = "success" %>
+              <span class="text-muted">–</span>
             <% end %>
-            <span class="text-muted"><%= analysis.score %>/10 <span class="text-<%= couleur %>">●</span></span>
-          <% else %>
-            <span class="text-muted">–</span>
-          <% end %>
+          </div>
+
         </li>
       <% end %>
     </ul>
