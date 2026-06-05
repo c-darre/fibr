@@ -78,7 +78,7 @@ class AnalyzeGarmentJob < ApplicationJob
     parsed["criteria"].each do |c|
       analysis.criteria.create!(name: c["name"], detail: c["detail"], score: c["score"])
     end
-    analysis.update!(score: parsed["score"], product_type: parsed["product_type"])
+    analysis.update!(score: parsed["score"], garment_type: parsed["garment_type"])
   end
 
   # Tells the AI what role to play and how to format its response
@@ -126,7 +126,7 @@ class AnalyzeGarmentJob < ApplicationJob
 
       Always respond in English, as a strict JSON object with this exact shape:
       {
-        "product_type": "the type of garment (e.g. T-shirt, Jacket, Jeans, Dress…)",
+        "garment_type": "the type of garment (e.g. T-shirt, Jacket, Jeans, Dress…)",
         "summary": "photo usability assessment first (retake advice if needed), then a short honest verdict",
         "score": <integer from 0 to 10>,
         "criteria": [

@@ -28,7 +28,7 @@
             <% end %>
 
             <div>
-              <h5 class="mb-1"><%= link_to analysis.product_type.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %></h5>
+              <h5 class="mb-1"><%= link_to analysis.garment_type.presence || "Analyse du #{analysis.created_at.strftime('%d/%m/%Y')}", analysis_path(analysis) %></h5>
               <small class="text-muted"><%= analysis.status %></small>
             </div>
           </div>
