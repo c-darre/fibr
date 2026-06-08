@@ -25,7 +25,7 @@ class DiscussionJob < ApplicationJob
     return stub_result unless ENV["VISION_SERVICE"] == "real"
 
     messages = chat.messages.where.not(content: [nil, ""]).order(:created_at)
-    llm_chat = RubyLLM.chat(model: "gpt-4o")
+    llm_chat = RubyLLM.chat(model: "claude-sonnet-4-6")
     llm_chat.with_instructions(system_prompt(analysis))
     response = llm_chat.ask(build_user_message(messages))
     response.content
