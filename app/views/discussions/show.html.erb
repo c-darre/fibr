@@ -20,8 +20,8 @@
         </div>
       <% else %>
         <div class="align-self-start" style="max-width: 75%;">
-          <div class="p-3 border border-dark border-2" style="background-color: white; font-family: 'Albert Sans', sans-serif;">
-            <%= message.content %>
+          <div class="p-3 border border-dark border-2 markdown-body" style="background-color: white; font-family: 'Albert Sans', sans-serif;">
+            <%= markdown(message.content) %>
           </div>
         </div>
       <% end %>
