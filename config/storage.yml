@@ -25,3 +25,10 @@ local:
 #   service: Mirror
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
+
+cat >> config/storage.yml << 'EOF'
+
+cloudinary:
+  service: Cloudinary
+  secure: true
+EOF
