@@ -53,8 +53,8 @@
           <div class="d-flex flex-column gap-2">
             <% recent_analyses.each do |analysis| %>
               <%= link_to analysis_path(analysis),
-                class: "text-decoration-none px-3 py-2 card history-card text-dark small fw-semibold" do %>
-                <%= "title test" %>
+                class: "text-decoration-none px-3 py-2 card list-group-item mb-2 shadow-sm rounded border text-dark small fw-semibold" do %>
+                <%= analysis.garment_type.presence || "Analysis of #{analysis.created_at.strftime('%d/%m/%Y')}" %>
               <% end %>
             <% end %>
           </div>
