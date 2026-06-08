@@ -46,7 +46,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_131004) do
     t.float "co2"
     t.datetime "created_at", null: false
     t.jsonb "ecobalyse_fields"
-    t.jsonb "extracted_fields"
     t.string "garment_size"
     t.string "garment_type"
     t.float "global_score"

@@ -32,7 +32,10 @@ class AnalysesController < ApplicationController
 
   def start_questionnary
     @analysis = Analysis.find(params[:id])
-    @analysis.chats.create!(kind: :questionnary) unless @analysis.questionnary_chat
+    unless @analysis.questionnary_chat
+      chat = @analysis.chats.create!(kind: :questionnary)
+      QuestionnaryJob.perform_later(chat.id)
+    end
     redirect_to questionnary_analysis_path(@analysis)
   end
 
