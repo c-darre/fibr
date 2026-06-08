@@ -27,10 +27,9 @@
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
 
-        <%# Les deux boutons côte à côte %>
+        <%# Bouton caméra + bouton flip côte à côte %>
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
 
-          <%# Bouton caméra : shutter classique %>
           <button type="button" id="btn-camera"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 72px; height: 72px; border-radius: 50%;
@@ -44,16 +43,13 @@
             </svg>
           </button>
 
-          <%# Bouton upload : cercle avec + %>
-          <button type="button" id="btn-upload"
+          <button type="button" id="btn-flip"
                   class="d-inline-flex align-items-center justify-content-center"
-                  style="width: 48px; height: 48px; border-radius: 50%;
+                  style="width: 44px; height: 44px; border-radius: 50%;
                          background: rgba(255,255,255,0.2);
                          border: 2px solid white;
-                         cursor: pointer; color: white;
-                         font-size: 1.5rem; line-height: 1;">
-
-            +
+                         cursor: pointer; color: white; font-size: 1.3rem;">
+            ↺
           </button>
 
         </div>
@@ -70,9 +66,17 @@
           <h6 class="mb-0 fw-semibold">Tag</h6>
           <p class="mb-0 text-muted small">Clothing label</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <span id="status-tag-text" class="text-muted small">PENDING</span>
-          <span id="status-tag-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        <div class="d-flex flex-column align-items-end gap-1">
+          <div class="d-flex align-items-center gap-2">
+            <span id="status-tag-text" class="text-muted small">PENDING</span>
+            <span id="status-tag-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+          </div>
+          <button type="button" id="btn-upload-tag"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 20px; height: 20px; border-radius: 50%;
+                         background: transparent; border: 1.5px solid #adb5bd;
+                         cursor: pointer; color: #adb5bd;
+                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
         </div>
       </div>
       <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
@@ -80,9 +84,17 @@
           <h6 class="mb-0 fw-semibold">Front</h6>
           <p class="mb-0 text-muted small">Front of garment</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <span id="status-front-text" class="text-muted small">PENDING</span>
-          <span id="status-front-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        <div class="d-flex flex-column align-items-end gap-1">
+          <div class="d-flex align-items-center gap-2">
+            <span id="status-front-text" class="text-muted small">PENDING</span>
+            <span id="status-front-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+          </div>
+          <button type="button" id="btn-upload-front"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 20px; height: 20px; border-radius: 50%;
+                         background: transparent; border: 1.5px solid #adb5bd;
+                         cursor: pointer; color: #adb5bd;
+                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
         </div>
       </div>
       <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
@@ -90,9 +102,17 @@
           <h6 class="mb-0 fw-semibold">Back</h6>
           <p class="mb-0 text-muted small">Back of garment</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-          <span id="status-back-text" class="text-muted small">PENDING</span>
-          <span id="status-back-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+        <div class="d-flex flex-column align-items-end gap-1">
+          <div class="d-flex align-items-center gap-2">
+            <span id="status-back-text" class="text-muted small">PENDING</span>
+            <span id="status-back-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+          </div>
+          <button type="button" id="btn-upload-back"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 20px; height: 20px; border-radius: 50%;
+                         background: transparent; border: 1.5px solid #adb5bd;
+                         cursor: pointer; color: #adb5bd;
+                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
         </div>
       </div>
       <div class="p-3">
@@ -107,29 +127,40 @@
   // step suit l'étape en cours : 1 = Tag, 2 = Front, 3 = Back
   // Il augmente à chaque photo prise ou importée
   let step = 1
+  let facingMode = "environment" // "environment" = caméra arrière, "user" = caméra avant
 
   // -----------------------------------------------------------------
   // DÉMARRAGE DE LA CAMÉRA
-  // Appelée automatiquement au chargement de la page (deux événements
-  // pour être compatible avec Turbo, le système de navigation de Rails)
   // -----------------------------------------------------------------
   function demarrerCamera() {
     const video = document.getElementById("camera-feed")
 
-    // Si l'élément n'existe pas ou si la caméra tourne déjà : on arrête
     if (!video || video.srcObject) return
 
-    // getUserMedia : API du navigateur qui demande l'accès à la caméra
-    // facingMode "environment" = caméra arrière du téléphone
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
       .then(function(stream) {
-        // La permission est accordée : on branche le flux vidéo sur la balise <video>
         video.srcObject = stream
       })
       .catch(function(erreur) {
-        // La permission est refusée ou une erreur survient : on affiche le message
         document.getElementById("scan-text").textContent = "Error: " + erreur.message
       })
+  }
+
+  // -----------------------------------------------------------------
+  // RETOURNER LA CAMÉRA
+  // On arrête le stream en cours, on bascule facingMode, on redémarre
+  // -----------------------------------------------------------------
+  function retournerCamera() {
+    const video = document.getElementById("camera-feed")
+
+    // Arrêter le stream actuel
+    video.srcObject.getTracks().forEach(function(track) { track.stop() })
+    video.srcObject = null
+
+    // Basculer entre arrière et avant
+    facingMode = (facingMode === "environment") ? "user" : "environment"
+
+    demarrerCamera()
   }
 
   // Lance demarrerCamera() dès que la page est prête
@@ -144,22 +175,15 @@
   // C'est plus propre que d'écrire onclick="..." directement dans le HTML.
   // -----------------------------------------------------------------
   document.getElementById("btn-camera").addEventListener("click", capturerPhoto)
-  document.getElementById("btn-upload").addEventListener("click", ouvrirUpload)
+  document.getElementById("btn-flip").addEventListener("click", retournerCamera)
+
+  document.getElementById("btn-upload-tag").addEventListener("click", function() { document.getElementById("upload-tag").click() })
+  document.getElementById("btn-upload-front").addEventListener("click", function() { document.getElementById("upload-front").click() })
+  document.getElementById("btn-upload-back").addEventListener("click", function() { document.getElementById("upload-back").click() })
 
   document.getElementById("upload-tag").addEventListener("change", tagPris)
   document.getElementById("upload-front").addEventListener("change", devantPris)
   document.getElementById("upload-back").addEventListener("change", derrierePris)
-
-  // -----------------------------------------------------------------
-  // BOUTON "+" : OUVRIR LA GALERIE
-  // Simule un clic sur le bon input caché selon l'étape en cours
-  // L'input caché s'ouvre et propose la galerie photo du téléphone
-  // -----------------------------------------------------------------
-  function ouvrirUpload() {
-    if (step === 1) document.getElementById("upload-tag").click()
-    if (step === 2) document.getElementById("upload-front").click()
-    if (step === 3) document.getElementById("upload-back").click()
-  }
 
   // -----------------------------------------------------------------
   // BOUTON CAMÉRA : CAPTURER UNE PHOTO DU FLUX VIDÉO
@@ -213,6 +237,7 @@
     document.getElementById("status-tag-dot").style.background = "#198754"
     document.getElementById("status-tag-text").textContent = "OK"
     document.getElementById("status-tag-text").style.color = "#198754"
+    document.getElementById("btn-upload-tag").style.display = "none"
     document.getElementById("scan-text").textContent = "SCAN FRONT PICTURE"
     step = 2
   }
@@ -221,6 +246,7 @@
     document.getElementById("status-front-dot").style.background = "#198754"
     document.getElementById("status-front-text").textContent = "OK"
     document.getElementById("status-front-text").style.color = "#198754"
+    document.getElementById("btn-upload-front").style.display = "none"
     document.getElementById("scan-text").textContent = "SCAN BACK PICTURE"
     step = 3
   }
@@ -229,8 +255,8 @@
     document.getElementById("status-back-dot").style.background = "#198754"
     document.getElementById("status-back-text").textContent = "OK"
     document.getElementById("status-back-text").style.color = "#198754"
+    document.getElementById("btn-upload-back").style.display = "none"
     document.getElementById("scan-text").textContent = "All done!"
-    // Active le bouton "Start analysis" maintenant que les 3 photos sont prises
     document.getElementById("submit-btn").disabled = false
     step = 4
   }
