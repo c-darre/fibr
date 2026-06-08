@@ -25,7 +25,7 @@ class DiscussionJob < ApplicationJob
     return stub_result unless ENV["VISION_SERVICE"] == "real"
 
     messages = chat.messages.where.not(content: [nil, ""]).order(:created_at)
-    llm_chat = RubyLLM.chat(model: "gpt-4o")
+    llm_chat = RubyLLM.chat(model: "claude-sonnet-4-6")
     llm_chat.with_instructions(system_prompt(analysis))
     response = llm_chat.ask(build_user_message(messages))
     response.content
@@ -40,18 +40,20 @@ class DiscussionJob < ApplicationJob
     <<~PROMPT
       You are a textile expert working for Fibr, a garment quality analysis application.
 
-      You have access to the results of the user's garment analysis.
-      Your role is to answer their questions to help them better understand these results.
+      You have access to the results of the user's garment analysis, including its Ecobalyse environmental scores.
+      Your role is to answer their questions about garment quality AND environmental impact.
 
-      ABSOLUTE RULES:
+      RULES:
       - You NEVER assign new scores or ratings.
       - You NEVER question existing scores.
-      - You ONLY explain what has already been analyzed.
+      - For quality criteria, you ONLY explain what has already been analyzed.
+      - For environmental topics, you CAN use your general knowledge about Ecobalyse,
+        textile lifecycle, materials impact, and eco-friendly alternatives.
 
-      You can explain: materials and their environmental impact, care instructions,
-      traceability, durability, and why a given criterion received a particular score.
-
-      Be educational, honest, and concise. Always reply in the user's language.
+      FORMATTING:
+      - Use at most one emoji per response, only if it adds real value.
+      - Never use h1 (#) or h2 (##) headings — use bold (**text**) or h3 (###) at most.
+      - Be educational, honest, and concise. Always reply in the user's language.
 
       #{analysis_context(analysis)}
     PROMPT
@@ -61,6 +63,14 @@ class DiscussionJob < ApplicationJob
     summary = analysis.analysis_chat.messages.find_by(role: :assistant)&.content
     criteria_text = analysis.criteria.map { |c| "- #{c.name}: #{c.score}/10 — #{c.detail}" }.join("\n")
 
-    "ANALYSIS RESULTS:\nOverall score: #{analysis.score}/10\nSummary: #{summary}\n\nCriteria:\n#{criteria_text}"
+    ecobalyse_lines = [
+      (analysis.global_score ? "- Overall impact score: #{analysis.global_score.round(1)} pts (lower is better)" : nil),
+      (analysis.co2          ? "- CO2 equivalent: #{analysis.co2.round(3)} kg CO2eq" : nil),
+      (analysis.water        ? "- Water consumption: #{analysis.water.round(1)} L" : nil)
+    ].compact
+
+    context = "QUALITY ANALYSIS:\nOverall score: #{analysis.score}/10\nSummary: #{summary}\n\nCriteria:\n#{criteria_text}"
+    context += "\n\nECOBALYSE ENVIRONMENTAL DATA:\n#{ecobalyse_lines.join("\n")}" if ecobalyse_lines.any?
+    context
   end
 end
