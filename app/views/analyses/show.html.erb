@@ -35,7 +35,7 @@
     <%
       total_score = @analysis.criteria.sum(:score)
       max_score   = @analysis.criteria.count * 10
-      global_pct  = max_score > 0 ? (total_score.to_f / max_score * 10).round : 0
+      global_pct  = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(2) : 0
     %>
 
     <div class="card text-center p-4 mb-5 shadow-sm">
