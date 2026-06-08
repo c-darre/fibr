@@ -34,16 +34,39 @@
 
           <div class="m-2 text">
             <% if analysis.score %>
-              <% if analysis.score < 2.5 %>
+              <% if analysis.score < 4.5 %>
                 <% couleur = "danger" %>
               <% elsif analysis.score < 7.5 %>
                 <% couleur = "warning" %>
               <% else %>
                 <% couleur = "success" %>
               <% end %>
-              <span class="text-muted">
-                <%= analysis.score %>/10 <span class="text-<%= couleur %> ms-1">●</span>
-              </span>
+
+              <%
+                score_percentage = (analysis.score * 10).to_i
+                total_circumference = 113.1
+                stroke_offset = total_circumference - ((score_percentage / 100.0) * total_circumference)
+              %>
+
+              <div class="score-circle">
+                <svg class="progress-ring" width="50" height="50">
+                  <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="4" fill="transparent" />
+
+                  <circle class="progress-ring-fill stroke-<%= couleur %>"
+                          cx="25"
+                          cy="25"
+                          r="18"
+                          stroke-width="4"
+                          fill="transparent"
+                          stroke-dasharray="<%= total_circumference %>"
+                          style="stroke-dashoffset: <%= stroke_offset %>px;" />
+                </svg>
+
+                <div class="progress-inner-text">
+                  <%= analysis.score.to_i %>
+                </div>
+              </div>
+
             <% else %>
               <span class="text-muted">–</span>
             <% end %>
