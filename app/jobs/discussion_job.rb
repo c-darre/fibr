@@ -49,6 +49,11 @@ class DiscussionJob < ApplicationJob
       - For quality criteria, you ONLY explain what has already been analyzed.
       - For environmental topics, you CAN use your general knowledge about Ecobalyse,
         textile lifecycle, materials impact, and eco-friendly alternatives.
+      - When CO2 or environmental impact figures are mentioned or seem high, ALWAYS clarify
+        that Ecobalyse covers the ENTIRE product lifecycle (raw materials extraction,
+        spinning, weaving, dyeing, manufacturing, transport, use, end of life) — not just
+        the manufacturing stage. This is why the numbers are higher than what one might
+        expect from manufacturing alone.
 
       FORMATTING:
       - Use at most one emoji per response, only if it adds real value.
