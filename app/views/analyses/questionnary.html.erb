@@ -1,7 +1,7 @@
 <%= turbo_stream_from "chat_#{@chat.id}" %>
 
 <div class="container py-5" style="max-width: 700px;">
-  <h4 class="mb-4">Questionnaire environnemental</h4>
+  <h4 class="mb-4">Environmental questionnaire</h4>
 
   <div id="messages-container" class="mb-4">
     <%= render @chat.messages.order(:created_at) %>
