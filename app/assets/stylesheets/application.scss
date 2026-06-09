@@ -10,3 +10,21 @@
 // Your CSS partials
 @import "components/index";
 @import "pages/index";
+
+// Font
+@import url("https://use.typekit.net/oiv2aow.css");
+
+@font-face {
+  font-family: 'Savoye LET';
+  // Utilise 'savoye.woff' et précise bien 'woff' au lieu de 'woff2'
+  src: font-url('savoye.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Optician Sans';
+  src: font-url('optiker.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
