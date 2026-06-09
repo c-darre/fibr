@@ -23,12 +23,26 @@
              class="position-absolute top-0 start-0 w-100 h-100"
              style="object-fit: cover;"></video>
 
+      <%# Overlay flash : blanc, invisible par défaut, s'anime au clic %>
+      <div id="flash-overlay"
+           class="position-absolute top-0 start-0 w-100 h-100"
+           style="background: white; opacity: 0; pointer-events: none; z-index: 999;"></div>
+
       <%# Bouton et texte flottent par-dessus la vidéo, en bas %>
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
 
-        <%# Bouton caméra + bouton flip côte à côte %>
+        <%# Bouton caméra + bouton flip + bouton flash côte à côte %>
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
+
+          <button type="button" id="btn-flip"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 44px; height: 44px; border-radius: 50%;
+                         background: rgba(255,255,255,0.2);
+                         border: 2px solid white;
+                         cursor: pointer; color: white; font-size: 1.3rem;">
+            ↺
+          </button>
 
           <button type="button" id="btn-camera"
                   class="d-inline-flex align-items-center justify-content-center"
@@ -43,13 +57,13 @@
             </svg>
           </button>
 
-          <button type="button" id="btn-flip"
+          <button type="button" id="btn-flash"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 44px; height: 44px; border-radius: 50%;
                          background: rgba(255,255,255,0.2);
                          border: 2px solid white;
                          cursor: pointer; color: white; font-size: 1.3rem;">
-            ↺
+            ⚡
           </button>
 
         </div>
@@ -124,10 +138,9 @@
 </div>
 
 <script>
-  // step suit l'étape en cours : 1 = Tag, 2 = Front, 3 = Back
-  // Il augmente à chaque photo prise ou importée
   let step = 1
-  let facingMode = "environment" // "environment" = caméra arrière, "user" = caméra avant
+  let facingMode = "environment" // "environment" = arrière, "user" = avant
+  let flashActif = false         // Gestion globale de l'état du flash
 
   // -----------------------------------------------------------------
   // DÉMARRAGE DE LA CAMÉRA
@@ -140,6 +153,8 @@
     navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
       .then(function(stream) {
         video.srcObject = stream
+        // Réappliquer le flash si l'utilisateur l'avait activé avant de switch de caméra
+        appliquerFlashMateriel()
       })
       .catch(function(erreur) {
         document.getElementById("scan-text").textContent = "Error: " + erreur.message
@@ -148,34 +163,32 @@
 
   // -----------------------------------------------------------------
   // RETOURNER LA CAMÉRA
-  // On arrête le stream en cours, on bascule facingMode, on redémarre
   // -----------------------------------------------------------------
   function retournerCamera() {
     const video = document.getElementById("camera-feed")
+    if (!video.srcObject) return
 
-    // Arrêter le stream actuel
     video.srcObject.getTracks().forEach(function(track) { track.stop() })
     video.srcObject = null
 
-    // Basculer entre arrière et avant
     facingMode = (facingMode === "environment") ? "user" : "environment"
+
+    // On coupe proprement l'état du flash pour éviter les bugs sur la caméra avant
+    flashActif = false
+    majBoutonFlashUI()
 
     demarrerCamera()
   }
 
-  // Lance demarrerCamera() dès que la page est prête
   document.addEventListener("DOMContentLoaded", demarrerCamera)
   document.addEventListener("turbo:load", demarrerCamera)
 
   // -----------------------------------------------------------------
-  // ÉVÉNEMENTS
-  // On regroupe ici tous les écouteurs de clics et de changements.
-  // addEventListener("click", maFonction) = "quand on clique, appelle maFonction"
-  // addEventListener("change", maFonction) = "quand le fichier change, appelle maFonction"
-  // C'est plus propre que d'écrire onclick="..." directement dans le HTML.
+  // ÉVÉNEMENTS ÉCOUTEURS
   // -----------------------------------------------------------------
   document.getElementById("btn-camera").addEventListener("click", capturerPhoto)
   document.getElementById("btn-flip").addEventListener("click", retournerCamera)
+  document.getElementById("btn-flash").addEventListener("click", basculerFlash)
 
   document.getElementById("btn-upload-tag").addEventListener("click", function() { document.getElementById("upload-tag").click() })
   document.getElementById("btn-upload-front").addEventListener("click", function() { document.getElementById("upload-front").click() })
@@ -186,34 +199,74 @@
   document.getElementById("upload-back").addEventListener("change", derrierePris)
 
   // -----------------------------------------------------------------
-  // BOUTON CAMÉRA : CAPTURER UNE PHOTO DU FLUX VIDÉO
-  // Le canvas est une "zone de dessin" invisible.
-  // On y copie l'image actuelle de la vidéo, puis on la convertit
-  // en fichier pour l'attacher à l'input caché du formulaire.
+  // GESTION DU FLASH (MATÉRIEL + VISUEL)
+  // -----------------------------------------------------------------
+  function basculerFlash() {
+    flashActif = !flashActif
+    majBoutonFlashUI()
+    appliquerFlashMateriel()
+  }
+
+  function majBoutonFlashUI() {
+    const btn = document.getElementById("btn-flash")
+    if (flashActif) {
+      btn.style.background = "rgba(255, 220, 0, 0.8)" // Jaune si actif
+      btn.style.borderColor = "yellow"
+    } else {
+      btn.style.background = "rgba(255,255,255,0.2)" // Blanc transparent si inactif
+      btn.style.borderColor = "white"
+    }
+  }
+
+  function appliquerFlashMateriel() {
+    const video = document.getElementById("camera-feed")
+    if (video && video.srcObject) {
+      const track = video.srcObject.getVideoTracks()[0]
+      if (track && typeof track.getCapabilities === 'function') {
+        const capabilities = track.getCapabilities()
+        // Si le navigateur et le téléphone supportent la vraie LED (torch)
+        if (capabilities.torch) {
+          track.applyConstraints({
+            advanced: [{ torch: flashActif }]
+          }).catch(err => console.log("L'accès à la LED a échoué : ", err))
+        }
+      }
+    }
+  }
+
+  function declencherFlashVisuel() {
+    if (!flashActif) return
+
+    const overlay = document.getElementById("flash-overlay")
+    overlay.style.transition = "none"                      // allumage instantané
+    overlay.style.opacity = "1"
+    setTimeout(function() {
+      overlay.style.transition = "opacity 0.15s ease-out" // fondu retour
+      overlay.style.opacity = "0"
+    }, 150)
+  }
+
+  // -----------------------------------------------------------------
+  // CAPTURER UNE PHOTO DU FLUX VIDÉO
   // -----------------------------------------------------------------
   function capturerPhoto() {
     const video  = document.getElementById("camera-feed")
     const canvas = document.getElementById("canvas")
 
-    // Donne au canvas les mêmes dimensions que la vidéo
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
 
-    // Dessine l'image actuelle de la vidéo dans le canvas (comme un screenshot)
+    // Écran blanc synchrone
+    declencherFlashVisuel()
+
+    // Prise instantanée du screen pendant le flash
     canvas.getContext("2d").drawImage(video, 0, 0)
 
-    // Convertit le canvas en fichier image (blob = données brutes d'un fichier)
     canvas.toBlob(function(blob) {
-
-      // Crée un vrai fichier nommé "photo.jpg" à partir des données brutes
       const fichier = new File([blob], "photo.jpg", { type: "image/jpeg" })
-
-      // DataTransfer est le seul moyen en JavaScript d'attacher un fichier
-      // manuellement à un input de type file
       const transfert = new DataTransfer()
       transfert.items.add(fichier)
 
-      // Attache le fichier au bon input caché selon l'étape, puis avance
       if (step === 1) {
         document.getElementById("input-tag").files = transfert.files
         tagPris()
@@ -224,14 +277,16 @@
         document.getElementById("input-back").files = transfert.files
         derrierePris()
       }
+
+      // Auto-extinction de la LED après la capture pour le confort de l'utilisateur
+      if (flashActif) {
+        basculerFlash()
+      }
     })
   }
 
   // -----------------------------------------------------------------
-  // MISE À JOUR DU STATUT
-  // Ces 3 fonctions sont appelées après une capture caméra OU un upload.
-  // Elles passent le point en vert, mettent à jour le texte,
-  // et avancent l'étape.
+  // MISE À JOUR DES STATUTS
   // -----------------------------------------------------------------
   function tagPris() {
     document.getElementById("status-tag-dot").style.background = "#198754"
