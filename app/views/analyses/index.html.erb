@@ -9,14 +9,14 @@
   <% else %>
     <%= form_with url: analyses_path, method: :get, local: true, class: "mb-4" do |f| %>
       <div class="input-group">
-        <%= f.text_field :query, value: params[:query], placeholder: "Search History…", class: "form-control" %>
+        <%= f.text_field :query, value: params[:query], placeholder: "Search History...", class: "form-control" %>
         <%= f.submit "Search", class: "btn btn-primary" %>
       </div>
     <% end %>
 
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
-        <% photo = analysis.analysis_chat&.messages&.joins(:photos_attachments)&.second&.photos&.first %>
+        <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
         <li class="list-group-item d-flex justify-content-between align-items-center border mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
@@ -33,19 +33,49 @@
           </div>
 
           <div class="m-2 text">
-            <% if analysis.score %>
-              <% if analysis.score < 2.5 %>
+            <%# average across all criteria — same calculation as the show page %>
+            <%
+              total_score   = analysis.criteria.sum(:score)
+              max_score     = analysis.criteria.count * 10
+              average_score = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(1) : nil
+            %>
+
+            <% if average_score %>
+              <% if average_score < 4.5 %>
                 <% couleur = "danger" %>
-              <% elsif analysis.score < 7.5 %>
+              <% elsif average_score < 7.5 %>
                 <% couleur = "warning" %>
               <% else %>
                 <% couleur = "success" %>
               <% end %>
-              <span class="text-muted">
-                <%= analysis.score %>/10 <span class="text-<%= couleur %> ms-1">●</span>
-              </span>
+
+              <%
+                score_percentage = (average_score * 10).to_i
+                total_circumference = 113.1
+                stroke_offset = total_circumference - ((score_percentage / 100.0) * total_circumference)
+              %>
+
+              <div class="score-circle">
+                <svg class="progress-ring" width="50" height="50">
+                  <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="4" fill="transparent" />
+
+                  <circle class="progress-ring-fill stroke-<%= couleur %>"
+                          cx="25"
+                          cy="25"
+                          r="18"
+                          stroke-width="4"
+                          fill="transparent"
+                          stroke-dasharray="<%= total_circumference %>"
+                          style="stroke-dashoffset: <%= stroke_offset %>px;" />
+                </svg>
+
+                <div class="progress-inner-text">
+                  <%= average_score %>
+                </div>
+              </div>
+
             <% else %>
-              <span class="text-muted">–</span>
+              <span class="text-muted">-</span>
             <% end %>
           </div>
 
