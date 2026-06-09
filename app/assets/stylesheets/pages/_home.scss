@@ -14,8 +14,8 @@ $bg-color: #f9e9d9;
 /* --- TITRE PRINCIPAL --- */
 .hero-title-container {
   position: relative;
-  width: 100%;
-  max-width: 90%; // Aligné avec la largeur typique mobile
+  width: fit-content;
+  max-width: 90%;
   margin: 10px auto;
 }
 
