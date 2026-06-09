@@ -20,9 +20,26 @@
              class="position-absolute top-0 start-0 w-100 h-100"
              style="object-fit: cover;"></video>
 
+      <%# Overlay flash : blanc, invisible par défaut, s'anime au clic %>
+      <div id="flash-overlay"
+           class="position-absolute top-0 start-0 w-100 h-100"
+           style="background: white; opacity: 0; pointer-events: none; z-index: 999;"></div>
+
+      <%# Bouton et texte flottent par-dessus la vidéo, en bas %>
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
+
+        <%# Bouton caméra + bouton flip + bouton flash côte à côte %>
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
+
+          <button type="button" id="btn-flip"
+                  class="d-inline-flex align-items-center justify-content-center"
+                  style="width: 44px; height: 44px; border-radius: 50%;
+                         background: rgba(255,255,255,0.2);
+                         border: 2px solid white;
+                         cursor: pointer; color: white; font-size: 1.3rem;">
+            ↺
+          </button>
 
           <button type="button" id="btn-camera"
                   class="d-inline-flex align-items-center justify-content-center"
@@ -40,11 +57,11 @@
             </svg>
           </button>
 
-          <button type="button" id="btn-flip"
+          <button type="button" id="btn-flash"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 44px; height: 44px; border-radius: 50%;
                          background: rgba(255,255,255,0.2); border: 2px solid white;
-                         cursor: pointer; color: white; font-size: 1.3rem;">↺</button>
+                         cursor: pointer; color: white; font-size: 1.3rem;">⚡</button>
         </div>
 
         <h2 id="scan-text" class="fw-bold mb-0" style="color:white; letter-spacing:1px; font-size:1.2rem;">SCAN YOUR TAG</h2>
@@ -52,46 +69,47 @@
     </div>
 
     <%# Cartes étapes %>
-            <div class="capture-list flex-shrink-0">
+    <div class="capture-list flex-shrink-0">
 
-                  <div class="capture-card is-active" id="card-tag">
-          <div class="d-flex align-items-center">
-            <span class="status-dot"></span>
-            <span class="capture-label"><strong>Tag</strong><span>Clothing label</span></span>
-          </div>
-          <div class="d-flex align-items-center">
-            <button type="button" class="capture-retake" id="retake-tag">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-            </button>
-            <button type="button" class="capture-add" id="btn-upload-tag">+</button>
-          </div>
+      <div class="capture-card is-active" id="card-tag">
+        <div class="d-flex align-items-center">
+          <span class="status-dot"></span>
+          <span class="capture-label"><strong>Tag</strong><span>Clothing label</span></span>
         </div>
+        <div class="d-flex align-items-center">
+          <button type="button" class="capture-retake" id="retake-tag">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+          </button>
+          <button type="button" class="capture-add" id="btn-upload-tag">+</button>
+        </div>
+      </div>
 
-        <div class="capture-card is-pending" id="card-front">
-          <div class="d-flex align-items-center">
-            <span class="status-dot"></span>
-            <span class="capture-label"><strong>Front</strong><span>Front of garment</span></span>
-          </div>
-          <div class="d-flex align-items-center">
-            <button type="button" class="capture-retake" id="retake-front">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-            </button>
-            <button type="button" class="capture-add" id="btn-upload-front">+</button>
-          </div>
+      <div class="capture-card is-pending" id="card-front">
+        <div class="d-flex align-items-center">
+          <span class="status-dot"></span>
+          <span class="capture-label"><strong>Front</strong><span>Front of garment</span></span>
         </div>
+        <div class="d-flex align-items-center">
+          <button type="button" class="capture-retake" id="retake-front">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+          </button>
+          <button type="button" class="capture-add" id="btn-upload-front">+</button>
+        </div>
+      </div>
 
-        <div class="capture-card is-pending" id="card-back">
-          <div class="d-flex align-items-center">
-            <span class="status-dot"></span>
-            <span class="capture-label"><strong>Back</strong><span>Back of garment</span></span>
-          </div>
-          <div class="d-flex align-items-center">
-            <button type="button" class="capture-retake" id="retake-back">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-            </button>
-            <button type="button" class="capture-add" id="btn-upload-back">+</button>
-          </div>
+      <div class="capture-card is-pending" id="card-back">
+        <div class="d-flex align-items-center">
+          <span class="status-dot"></span>
+          <span class="capture-label"><strong>Back</strong><span>Back of garment</span></span>
         </div>
+        <div class="d-flex align-items-center">
+          <button type="button" class="capture-retake" id="retake-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+          </button>
+          <button type="button" class="capture-add" id="btn-upload-back">+</button>
+        </div>
+      </div>
+
       <div class="pt-2">
         <%= f.submit "See results →", id: "submit-btn", class: "btn_fibr_pill", disabled: true %>
       </div>
@@ -102,29 +120,53 @@
 
 <script>
   let step = 1
-  let facingMode = "environment"
+  let facingMode = "environment" // "environment" = arrière, "user" = avant
+  let flashActif = false         // Gestion globale de l'état du flash
 
   function demarrerCamera() {
     const video = document.getElementById("camera-feed")
     if (!video || video.srcObject) return
     navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
-      .then(function(stream) { video.srcObject = stream })
-      .catch(function(erreur) { document.getElementById("scan-text").textContent = "Error: " + erreur.message })
+      .then(function(stream) {
+        video.srcObject = stream
+        // Réappliquer le flash si l'utilisateur l'avait activé avant de switch de caméra
+        appliquerFlashMateriel()
+      })
+      .catch(function(erreur) {
+        document.getElementById("scan-text").textContent = "Error: " + erreur.message
+      })
   }
 
+  // -----------------------------------------------------------------
+  // RETOURNER LA CAMÉRA
+  // -----------------------------------------------------------------
   function retournerCamera() {
     const video = document.getElementById("camera-feed")
+    if (!video.srcObject) return
+
     video.srcObject.getTracks().forEach(function(track) { track.stop() })
     video.srcObject = null
+
     facingMode = (facingMode === "environment") ? "user" : "environment"
+
+    // On coupe proprement l'état du flash pour éviter les bugs sur la caméra avant
+    flashActif = false
+    majBoutonFlashUI()
+
     demarrerCamera()
   }
 
   document.addEventListener("DOMContentLoaded", demarrerCamera)
   document.addEventListener("turbo:load", demarrerCamera)
 
+  // -----------------------------------------------------------------
+  // ÉVÉNEMENTS ÉCOUTEURS
+  // -----------------------------------------------------------------
+  // Fusion : On utilise boutonPrincipal (logique design/étapes) 
+  // au lieu de capturerPhoto directement
   document.getElementById("btn-camera").addEventListener("click", boutonPrincipal)
   document.getElementById("btn-flip").addEventListener("click", retournerCamera)
+  document.getElementById("btn-flash").addEventListener("click", basculerFlash)
 
   document.getElementById("btn-upload-tag").addEventListener("click",   function() { actionBouton("tag") })
   document.getElementById("btn-upload-front").addEventListener("click", function() { actionBouton("front") })
@@ -147,36 +189,97 @@
     }
   }
 
+  // -----------------------------------------------------------------
+  // GESTION DU FLASH (MATÉRIEL + VISUEL)
+  // -----------------------------------------------------------------
+  function basculerFlash() {
+    flashActif = !flashActif
+    majBoutonFlashUI()
+    appliquerFlashMateriel()
+  }
+
+  function majBoutonFlashUI() {
+    const btn = document.getElementById("btn-flash")
+    if (flashActif) {
+      btn.style.background = "rgba(255, 220, 0, 0.8)" // Jaune si actif
+      btn.style.borderColor = "yellow"
+    } else {
+      btn.style.background = "rgba(255,255,255,0.2)" // Blanc transparent si inactif
+      btn.style.borderColor = "white"
+    }
+  }
+
+  function appliquerFlashMateriel() {
+    const video = document.getElementById("camera-feed")
+    if (video && video.srcObject) {
+      const track = video.srcObject.getVideoTracks()[0]
+      if (track && typeof track.getCapabilities === 'function') {
+        const capabilities = track.getCapabilities()
+        // Si le navigateur et le téléphone supportent la vraie LED (torch)
+        if (capabilities.torch) {
+          track.applyConstraints({
+            advanced: [{ torch: flashActif }]
+          }).catch(err => console.log("L'accès à la LED a échoué : ", err))
+        }
+      }
+    }
+  }
+
+  function declencherFlashVisuel() {
+    if (!flashActif) return
+
+    const overlay = document.getElementById("flash-overlay")
+    overlay.style.transition = "none"                      // allumage instantané
+    overlay.style.opacity = "1"
+    setTimeout(function() {
+      overlay.style.transition = "opacity 0.15s ease-out" // fondu retour
+      overlay.style.opacity = "0"
+    }, 150)
+  }
+
+  // -----------------------------------------------------------------
+  // CAPTURER UNE PHOTO DU FLUX VIDÉO
+  // -----------------------------------------------------------------
   function capturerPhoto() {
     const video  = document.getElementById("camera-feed")
     const canvas = document.getElementById("canvas")
+
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
+
+    // Écran blanc synchrone (Ajout de la branche main)
+    declencherFlashVisuel()
+
+    // Prise instantanée du screen pendant le flash
     canvas.getContext("2d").drawImage(video, 0, 0)
+
     canvas.toBlob(function(blob) {
       const fichier = new File([blob], "photo.jpg", { type: "image/jpeg" })
       const transfert = new DataTransfer()
       transfert.items.add(fichier)
-      if (step === 1)      { document.getElementById("input-tag").files   = transfert.files; tagPris() }
-      else if (step === 2) { document.getElementById("input-front").files = transfert.files; devantPris() }
-      else if (step === 3) { document.getElementById("input-back").files  = transfert.files; derrierePris() }
+
+      // Logique d'attribution des étapes (Branche de refonte design)
+      if (step === 1) {
+        document.getElementById("input-tag").files = transfert.files
+        tagPris()
+      } else if (step === 2) {
+        document.getElementById("input-front").files = transfert.files
+        devantPris()
+      } else if (step === 3) {
+        document.getElementById("input-back").files = transfert.files
+        derrierePris()
+      }
+
+      // Auto-extinction de la LED après la capture pour le confort de l'utilisateur
+      if (flashActif) {
+        basculerFlash()
+      }
     })
   }
 
-  // Passe une carte en "done", active la suivante
-  function marquerEtape(idFait, idSuivant, texteScan) {
-    const fait = document.getElementById(idFait)
-    fait.classList.remove("is-active")
-    fait.classList.add("is-done")
-    fait.querySelector(".capture-add").textContent = "✓"
-    if (idSuivant) {
-      const suivant = document.getElementById(idSuivant)
-      suivant.classList.remove("is-pending")
-      suivant.classList.add("is-active")
-    }
-    document.getElementById("scan-text").textContent = texteScan
-  }
-
+  // -----------------------------------------------------------------
+  // MISE À JOUR DES STATUTS ET UI
+  // -----------------------------------------------------------------
   function tagPris()      { finirEtape("card-tag") }
   function devantPris()   { finirEtape("card-front") }
   function derrierePris() { finirEtape("card-back") }

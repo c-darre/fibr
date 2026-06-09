@@ -2,9 +2,17 @@ class AnalysesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:create, :add_pictures, :show, :questionnary, :start_questionnary]
 
   def index
-    @analyses = current_user.analyses
+    # 1. Start with only the current user's analyses that are explicitly "completed"
+    @analyses = current_user.analyses.where(status: "completed")
+
+    # 2. If a search query is present, pull in the chat/messages tables to filter text
     if params[:query].present?
-      @analyses = @analyses.joins(analysis_chat: :messages).where("messages.content ILIKE ?", "%#{params[:query]}%").distinct
+      @analyses = @analyses.joins(analysis_chat: :messages)
+                          .where("messages.content ILIKE ?", "%#{params[:query]}%")
+                          .distinct
+    else
+      # Keep things organized with the newest completed scans at the top
+      @analyses = @analyses.order(created_at: :desc)
     end
   end
 
@@ -43,4 +51,6 @@ class AnalysesController < ApplicationController
     @analysis = Analysis.find(params[:id])
     @chat = @analysis.questionnary_chat
   end
+
+
 end

@@ -1,38 +1,124 @@
-// Specific CSS for your home-page
-body {
-  background-color: white;
-
-  h1 {
-    font-family: "Albert Sans", "Helvetica", "sans-serif";
-    font-size: 45px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    text-align: left;
-    padding: 20px;
-    margin: 0; // Clears default margins that might skew vertical centering
-  }
-
-}
+// Variables de typographie
+$font-sans: 'Acumin Variable Concept', sans-serif;
+$font-cursive: 'Savoye LET', cursive;
+$font-display: 'Optician Sans', sans-serif;
+$bg-color: #f9e9d9;
 
 .homepage-wrapper {
-  // Assuming your fixed-bottom navbar is roughly 60px-70px tall,
-  // adding padding-bottom forces the "vertical center" to shift upward
-  // so it accounts for the navbar room perfectly!
-  padding-bottom: 70px;
+  background-color: $bg-color;
+  color: #000;
+  font-family: $font-sans;
+  overflow-x: hidden;
 }
 
-.logo-container {
-  padding: 30px;
+/* --- TITRE PRINCIPAL --- */
+.hero-title-container {
+  position: relative;
+  width: fit-content;
+  max-width: 90%;
+  margin: 10px auto;
 }
 
-.homepage-logo {
-  width: 100%;  // Adjust this value to make it bigger or smaller
-  height: auto;  // Keeps the aspect ratio perfectly intact
-  display: block;
-
+.leaf-bg {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 80%;
+  z-index: 0;
+  opacity: 0.9;
 }
 
-.arrow-down {
-  font-size: 40px;
+.hero-title {
+  position: relative;
+  z-index: 1;
+  font-family: $font-sans;
+  font-weight: 300; // Light
+  font-size: 2.2rem;
+  line-height: 1.2;
+  letter-spacing: 1px;
+}
+
+.title-line {
+  white-space: nowrap;
+  font-size: 0.95em;
+  line-height: 1.5em;
+}
+
+.cursive-text {
+  font-family: $font-cursive;
+  font-size: 3em;
+  line-height: 0;
+  position: relative;
+  top: 3px;
+  font-weight: normal;
+  line-height: 0;
+  letter-spacing: 0;
+  text-transform: lowercase !important;
+  vertical-align: middle;
+}
+
+/* --- TEXTE DU MILIEU --- */
+.start-text {
+  margin-top: 5em;
+  font-family: $font-sans;
+  font-weight: 300;
+  font-size: 1.1rem;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
+}
+
+/* --- FLÈCHE CSS --- */
+.arrow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100px;
+}
+
+.vertical-line {
+  width: 1px;
+  height: 100%;
+  background-color: #000;
+}
+
+.arrow-head {
+  width: 12px;
+  height: 12px;
+  border-right: 1px solid #000;
+  border-bottom: 1px solid #000;
+  transform: rotate(45deg) translateY(-8px) translateX(-8px);
+}
+
+/* --- BOUTON GO --- */
+.go-button-wrapper {
+  display: inline-block;
+  border: 1px solid #000;
+  border-radius: 50px; // Forme de pilule pour le contour
+  padding: 3px; // Crée l'espace vide entre le contour et le bouton noir
+}
+
+.go-btn {
+  background-color: #000;
+  color: #fff;
+  border-radius: 50px; // Forme de pilule interne
+  padding: 8px 30px;
+  border: none;
+  transition: background-color 0.3s ease;
+
+  &:hover, &:focus {
+    background-color: #333; // Léger feedback visuel
+    color: #fff;
+  }
+}
+
+.go-text {
+  font-family: $font-display;
+  font-size: 1.3rem;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.go-arrow {
+  width: 20px;
+  height: 20px;
 }

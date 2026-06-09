@@ -1,0 +1,78 @@
+// Minimalist, highly reusable component class name
+.score-circle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+
+  .progress-ring {
+    transform: rotate(135deg); // Rotates it to match the opening at the bottom-left
+    transform-origin: center;
+  }
+
+  .progress-ring-track {
+    fill: transparent;
+    stroke: #f1f3f5;
+  }
+
+  .progress-ring-fill {
+    fill: transparent;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.35s ease-in-out;
+
+    // Custom coloring layers
+    &.stroke-success { stroke: #14c028; } // Bootstrap Green
+    &.stroke-warning { stroke: #ffe207; } // Bootstrap Yellow
+    &.stroke-danger  { stroke: #ec1a2f; } // Bootstrap Red
+  }
+
+  // Dead-center placement parameters
+  .progress-inner-text {
+    position: absolute;
+    font-family: "Albert Sans", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #212529;
+  }
+}.score-circle {
+  position: relative; // Tells the text wrapper where its alignment center boundary is
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+
+  .progress-ring {
+    transform: rotate(135deg);
+    transform-origin: center;
+    display: block; // Prevents any weird inline element spacing issues
+  }
+
+  .progress-ring-track {
+    stroke: #f1f3f5; // The light gray background ring
+  }
+
+  .progress-ring-fill {
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.35s ease-in-out;
+
+    // Enforce color overrides clearly
+    // &.stroke-success { stroke: #198754 !important; }
+    // &.stroke-warning { stroke: #ffc107 !important; }
+    // &.stroke-danger  { stroke: #dc3545 !important; }
+  }
+
+  // Forces the text directly over the middle of the SVG circle canvas
+  .progress-inner-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); // Flawless dead-center anchoring
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1;
+  }
+}

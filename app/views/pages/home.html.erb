@@ -1,18 +1,34 @@
 <div class="d-flex flex-column min-vh-100 homepage-wrapper">
 
-  <div class="logo-container">
-    <%= image_tag "Logo_black.svg", class: "homepage-logo", alt: "FIB__R Logo" %>
-  </div>
+  <div class="container d-flex flex-column justify-content-center align-items-center flex-grow-1 position-relative">
 
-  <div class="container d-flex flex-column justify-content-center flex-grow-1">
-    <h1 class="mb-5">Check the quality of your clothes</h1>
-    <div class="arrow-down text-center">
-        <%= button_to analyses_path,
-        method: :post,
-        class: "btn btn_fibr_outline text-start fw-semibold" do %>
-        Start analysis
-      <% end %>
+    <div class="hero-title-container mb-5">
+
+      <h1 class="hero-title">
+        <div class="title-line">CHECK</div>
+        <div class="title-line">THE <span class="cursive-text">quality</span></div>
+        <div class="title-line">OF YOUR <span class="cursive-text">clothes</span></div>
+      </h1>
     </div>
-  </div>
 
+    <div class="start-analysis-container text-center mt-5">
+      <p class="start-text mb-4">START<br>YOUR<br>ANALYSIS</p>
+
+      <div class="arrow-container mb-5">
+        <div class="vertical-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+
+      <div class="go-button-wrapper">
+        <%= button_to analyses_path, method: :post, class: "btn go-btn d-flex align-items-center justify-content-center" do %>
+          <span class="go-text">GO</span>
+          <svg class="go-arrow ms-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        <% end %>
+      </div>
+    </div>
+
+  </div>
 </div>

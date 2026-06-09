@@ -1,0 +1,49 @@
+.markdown-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+
+  p { margin-bottom: 0.6rem; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  ul, ol {
+    padding-left: 1.25rem;
+    margin-bottom: 0.6rem;
+  }
+
+  li { margin-bottom: 0.2rem; }
+
+  code {
+    background: #f4f4f4;
+    padding: 0.1em 0.35em;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: #f4f4f4;
+    padding: 0.75rem;
+    overflow-x: auto;
+    margin-bottom: 0.6rem;
+
+    code { background: none; padding: 0; }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.6rem;
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+
+    th { font-weight: 700; background: #f9f9f9; }
+  }
+
+  a { color: #000; text-decoration: underline; }
+}
