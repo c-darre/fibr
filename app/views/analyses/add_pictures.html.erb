@@ -1,122 +1,99 @@
-<div class="d-flex flex-column" style="max-width: 480px; margin: auto; height: 100vh;">
+<div class="capture-page d-flex flex-column">
 
   <%= form_with model: [@analysis, @analysis.analysis_chat, Message], html: { multipart: true, class: "d-flex flex-column flex-grow-1 overflow-hidden" } do |f| %>
 
-    <%# 3 inputs cachés pour la caméra %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag", name: "message[photos][]" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front",name: "message[photos][]" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back",name: "message[photos][]" %>
+    <%# Inputs cachés caméra %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-tag",   name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-front", name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "input-back",  name: "message[photos][]" %>
 
-    <%# 3 inputs cachés pour l'upload galerie (sans capture) %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag",name: "message[photos][]" %>
+    <%# Inputs cachés upload galerie %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-tag",   name: "message[photos][]" %>
     <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-front", name: "message[photos][]" %>
-    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back", name: "message[photos][]" %>
+    <%= f.file_field :photos, accept: "image/*", class: "d-none", id: "upload-back",  name: "message[photos][]" %>
 
-    <%# Canvas invisible : sert à photographier une image du flux vidéo %>
     <canvas id="canvas" class="d-none"></canvas>
 
-    <%# Zone caméra : prend tout l'espace au-dessus du bloc statut, sans espace %>
-    <div class="position-relative flex-grow-1 overflow-hidden">
-
-      <%# Flux vidéo live : remplit toute la zone %>
+    <%# Zone caméra %>
+    <div class="capture-camera position-relative flex-grow-1">
       <video id="camera-feed" autoplay playsinline muted
              class="position-absolute top-0 start-0 w-100 h-100"
              style="object-fit: cover;"></video>
 
-      <%# Bouton et texte flottent par-dessus la vidéo, en bas %>
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
-
-        <%# Bouton caméra + bouton flip côte à côte %>
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
 
           <button type="button" id="btn-camera"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 72px; height: 72px; border-radius: 50%;
-                         background: transparent;
-                         border: 3px solid white;
-                         box-shadow: 0 0 0 8px rgba(255,255,255,0.25);
-                         cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.5" style="pointer-events: none;">
+                         background: #f0ece4; border: 3px solid white;
+                         box-shadow: 0 0 0 8px rgba(255,255,255,0.25); cursor: pointer;">
+            <%# Icône caméra (par défaut) %>
+            <svg id="icon-camera" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="#1A1A1A" stroke-width="1.5" style="pointer-events:none;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+            </svg>
+            <%# Icône flèche (cachée tant que pas fini) %>
+            <svg id="icon-arrow" class="d-none" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="#1A1A1A" stroke-width="2" style="pointer-events:none;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
           </button>
 
           <button type="button" id="btn-flip"
                   class="d-inline-flex align-items-center justify-content-center"
                   style="width: 44px; height: 44px; border-radius: 50%;
-                         background: rgba(255,255,255,0.2);
-                         border: 2px solid white;
-                         cursor: pointer; color: white; font-size: 1.3rem;">
-            ↺
-          </button>
-
+                         background: rgba(255,255,255,0.2); border: 2px solid white;
+                         cursor: pointer; color: white; font-size: 1.3rem;">↺</button>
         </div>
 
-        <h2 id="scan-text" class="fw-bold mb-0" style="color: white; letter-spacing: 1px; font-size: 1.2rem;">SCAN YOUR TAG</h2>
+        <h2 id="scan-text" class="fw-bold mb-0" style="color:white; letter-spacing:1px; font-size:1.2rem;">SCAN YOUR TAG</h2>
       </div>
-
     </div>
 
-    <%# Bloc statut : collé directement sous la caméra %>
-    <div class="bg-white border-top flex-shrink-0">
-      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
-        <div>
-          <h6 class="mb-0 fw-semibold">Tag</h6>
-          <p class="mb-0 text-muted small">Clothing label</p>
-        </div>
-        <div class="d-flex flex-column align-items-end gap-1">
-          <div class="d-flex align-items-center gap-2">
-            <span id="status-tag-text" class="text-muted small">PENDING</span>
-            <span id="status-tag-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+    <%# Cartes étapes %>
+            <div class="capture-list flex-shrink-0">
+
+                  <div class="capture-card is-active" id="card-tag">
+          <div class="d-flex align-items-center">
+            <span class="status-dot"></span>
+            <span class="capture-label"><strong>Tag</strong><span>Clothing label</span></span>
           </div>
-          <button type="button" id="btn-upload-tag"
-                  class="d-inline-flex align-items-center justify-content-center"
-                  style="width: 20px; height: 20px; border-radius: 50%;
-                         background: transparent; border: 1.5px solid #adb5bd;
-                         cursor: pointer; color: #adb5bd;
-                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
-        </div>
-      </div>
-      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
-        <div>
-          <h6 class="mb-0 fw-semibold">Front</h6>
-          <p class="mb-0 text-muted small">Front of garment</p>
-        </div>
-        <div class="d-flex flex-column align-items-end gap-1">
-          <div class="d-flex align-items-center gap-2">
-            <span id="status-front-text" class="text-muted small">PENDING</span>
-            <span id="status-front-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+          <div class="d-flex align-items-center">
+            <button type="button" class="capture-retake" id="retake-tag">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+            <button type="button" class="capture-add" id="btn-upload-tag">+</button>
           </div>
-          <button type="button" id="btn-upload-front"
-                  class="d-inline-flex align-items-center justify-content-center"
-                  style="width: 20px; height: 20px; border-radius: 50%;
-                         background: transparent; border: 1.5px solid #adb5bd;
-                         cursor: pointer; color: #adb5bd;
-                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
         </div>
-      </div>
-      <div class="d-flex align-items-center justify-content-between py-3 border-bottom px-3">
-        <div>
-          <h6 class="mb-0 fw-semibold">Back</h6>
-          <p class="mb-0 text-muted small">Back of garment</p>
-        </div>
-        <div class="d-flex flex-column align-items-end gap-1">
-          <div class="d-flex align-items-center gap-2">
-            <span id="status-back-text" class="text-muted small">PENDING</span>
-            <span id="status-back-dot" style="width:10px;height:10px;border-radius:50%;background:#adb5bd;display:inline-block;"></span>
+
+        <div class="capture-card is-pending" id="card-front">
+          <div class="d-flex align-items-center">
+            <span class="status-dot"></span>
+            <span class="capture-label"><strong>Front</strong><span>Front of garment</span></span>
           </div>
-          <button type="button" id="btn-upload-back"
-                  class="d-inline-flex align-items-center justify-content-center"
-                  style="width: 20px; height: 20px; border-radius: 50%;
-                         background: transparent; border: 1.5px solid #adb5bd;
-                         cursor: pointer; color: #adb5bd;
-                         font-size: 0.85rem; line-height: 1; padding: 0;">+</button>
+          <div class="d-flex align-items-center">
+            <button type="button" class="capture-retake" id="retake-front">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+            <button type="button" class="capture-add" id="btn-upload-front">+</button>
+          </div>
         </div>
-      </div>
-      <div class="p-3">
-        <%= f.submit "Start analysis", id: "submit-btn", class: "btn btn_fibr btn-lg w-100", disabled: true %>
+
+        <div class="capture-card is-pending" id="card-back">
+          <div class="d-flex align-items-center">
+            <span class="status-dot"></span>
+            <span class="capture-label"><strong>Back</strong><span>Back of garment</span></span>
+          </div>
+          <div class="d-flex align-items-center">
+            <button type="button" class="capture-retake" id="retake-back">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+            </button>
+            <button type="button" class="capture-add" id="btn-upload-back">+</button>
+          </div>
+        </div>
+      <div class="pt-2">
+        <%= f.submit "See results →", id: "submit-btn", class: "btn_fibr_pill", disabled: true %>
       </div>
     </div>
 
@@ -124,140 +101,148 @@
 </div>
 
 <script>
-  // step suit l'étape en cours : 1 = Tag, 2 = Front, 3 = Back
-  // Il augmente à chaque photo prise ou importée
   let step = 1
-  let facingMode = "environment" // "environment" = caméra arrière, "user" = caméra avant
+  let facingMode = "environment"
 
-  // -----------------------------------------------------------------
-  // DÉMARRAGE DE LA CAMÉRA
-  // -----------------------------------------------------------------
   function demarrerCamera() {
     const video = document.getElementById("camera-feed")
-
     if (!video || video.srcObject) return
-
     navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
-      .then(function(stream) {
-        video.srcObject = stream
-      })
-      .catch(function(erreur) {
-        document.getElementById("scan-text").textContent = "Error: " + erreur.message
-      })
+      .then(function(stream) { video.srcObject = stream })
+      .catch(function(erreur) { document.getElementById("scan-text").textContent = "Error: " + erreur.message })
   }
 
-  // -----------------------------------------------------------------
-  // RETOURNER LA CAMÉRA
-  // On arrête le stream en cours, on bascule facingMode, on redémarre
-  // -----------------------------------------------------------------
   function retournerCamera() {
     const video = document.getElementById("camera-feed")
-
-    // Arrêter le stream actuel
     video.srcObject.getTracks().forEach(function(track) { track.stop() })
     video.srcObject = null
-
-    // Basculer entre arrière et avant
     facingMode = (facingMode === "environment") ? "user" : "environment"
-
     demarrerCamera()
   }
 
-  // Lance demarrerCamera() dès que la page est prête
   document.addEventListener("DOMContentLoaded", demarrerCamera)
   document.addEventListener("turbo:load", demarrerCamera)
 
-  // -----------------------------------------------------------------
-  // ÉVÉNEMENTS
-  // On regroupe ici tous les écouteurs de clics et de changements.
-  // addEventListener("click", maFonction) = "quand on clique, appelle maFonction"
-  // addEventListener("change", maFonction) = "quand le fichier change, appelle maFonction"
-  // C'est plus propre que d'écrire onclick="..." directement dans le HTML.
-  // -----------------------------------------------------------------
-  document.getElementById("btn-camera").addEventListener("click", capturerPhoto)
+  document.getElementById("btn-camera").addEventListener("click", boutonPrincipal)
   document.getElementById("btn-flip").addEventListener("click", retournerCamera)
 
-  document.getElementById("btn-upload-tag").addEventListener("click", function() { document.getElementById("upload-tag").click() })
-  document.getElementById("btn-upload-front").addEventListener("click", function() { document.getElementById("upload-front").click() })
-  document.getElementById("btn-upload-back").addEventListener("click", function() { document.getElementById("upload-back").click() })
+  document.getElementById("btn-upload-tag").addEventListener("click",   function() { actionBouton("tag") })
+  document.getElementById("btn-upload-front").addEventListener("click", function() { actionBouton("front") })
+  document.getElementById("btn-upload-back").addEventListener("click",  function() { actionBouton("back") })
 
-  document.getElementById("upload-tag").addEventListener("change", tagPris)
+  document.getElementById("retake-tag").addEventListener("click",   function() { reprendrePhoto("tag") })
+  document.getElementById("retake-front").addEventListener("click", function() { reprendrePhoto("front") })
+  document.getElementById("retake-back").addEventListener("click",  function() { reprendrePhoto("back") })
+
+  document.getElementById("upload-tag").addEventListener("change",   tagPris)
   document.getElementById("upload-front").addEventListener("change", devantPris)
-  document.getElementById("upload-back").addEventListener("change", derrierePris)
+  document.getElementById("upload-back").addEventListener("change",  derrierePris)
 
-  // -----------------------------------------------------------------
-  // BOUTON CAMÉRA : CAPTURER UNE PHOTO DU FLUX VIDÉO
-  // Le canvas est une "zone de dessin" invisible.
-  // On y copie l'image actuelle de la vidéo, puis on la convertit
-  // en fichier pour l'attacher à l'input caché du formulaire.
-  // -----------------------------------------------------------------
+  // Bouton central : capture si étapes restantes, sinon soumet le formulaire
+  function boutonPrincipal() {
+    if (step >= 4) {
+      document.getElementById("submit-btn").click()
+    } else {
+      capturerPhoto()
+    }
+  }
+
   function capturerPhoto() {
     const video  = document.getElementById("camera-feed")
     const canvas = document.getElementById("canvas")
-
-    // Donne au canvas les mêmes dimensions que la vidéo
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
-
-    // Dessine l'image actuelle de la vidéo dans le canvas (comme un screenshot)
     canvas.getContext("2d").drawImage(video, 0, 0)
-
-    // Convertit le canvas en fichier image (blob = données brutes d'un fichier)
     canvas.toBlob(function(blob) {
-
-      // Crée un vrai fichier nommé "photo.jpg" à partir des données brutes
       const fichier = new File([blob], "photo.jpg", { type: "image/jpeg" })
-
-      // DataTransfer est le seul moyen en JavaScript d'attacher un fichier
-      // manuellement à un input de type file
       const transfert = new DataTransfer()
       transfert.items.add(fichier)
-
-      // Attache le fichier au bon input caché selon l'étape, puis avance
-      if (step === 1) {
-        document.getElementById("input-tag").files = transfert.files
-        tagPris()
-      } else if (step === 2) {
-        document.getElementById("input-front").files = transfert.files
-        devantPris()
-      } else if (step === 3) {
-        document.getElementById("input-back").files = transfert.files
-        derrierePris()
-      }
+      if (step === 1)      { document.getElementById("input-tag").files   = transfert.files; tagPris() }
+      else if (step === 2) { document.getElementById("input-front").files = transfert.files; devantPris() }
+      else if (step === 3) { document.getElementById("input-back").files  = transfert.files; derrierePris() }
     })
   }
 
-  // -----------------------------------------------------------------
-  // MISE À JOUR DU STATUT
-  // Ces 3 fonctions sont appelées après une capture caméra OU un upload.
-  // Elles passent le point en vert, mettent à jour le texte,
-  // et avancent l'étape.
-  // -----------------------------------------------------------------
-  function tagPris() {
-    document.getElementById("status-tag-dot").style.background = "#198754"
-    document.getElementById("status-tag-text").textContent = "OK"
-    document.getElementById("status-tag-text").style.color = "#198754"
-    document.getElementById("btn-upload-tag").style.display = "none"
-    document.getElementById("scan-text").textContent = "SCAN FRONT PICTURE"
-    step = 2
+  // Passe une carte en "done", active la suivante
+  function marquerEtape(idFait, idSuivant, texteScan) {
+    const fait = document.getElementById(idFait)
+    fait.classList.remove("is-active")
+    fait.classList.add("is-done")
+    fait.querySelector(".capture-add").textContent = "✓"
+    if (idSuivant) {
+      const suivant = document.getElementById(idSuivant)
+      suivant.classList.remove("is-pending")
+      suivant.classList.add("is-active")
+    }
+    document.getElementById("scan-text").textContent = texteScan
   }
 
-  function devantPris() {
-    document.getElementById("status-front-dot").style.background = "#198754"
-    document.getElementById("status-front-text").textContent = "OK"
-    document.getElementById("status-front-text").style.color = "#198754"
-    document.getElementById("btn-upload-front").style.display = "none"
-    document.getElementById("scan-text").textContent = "SCAN BACK PICTURE"
-    step = 3
+  function tagPris()      { finirEtape("card-tag") }
+  function devantPris()   { finirEtape("card-front") }
+  function derrierePris() { finirEtape("card-back") }
+
+  function finirEtape(idCarte) {
+    const carte = document.getElementById(idCarte)
+    carte.classList.remove("is-active", "is-pending")
+    carte.classList.add("is-done")
+    carte.querySelector(".capture-add").textContent = "✓"
+    majEtape()
   }
 
-  function derrierePris() {
-    document.getElementById("status-back-dot").style.background = "#198754"
-    document.getElementById("status-back-text").textContent = "OK"
-    document.getElementById("status-back-text").style.color = "#198754"
-    document.getElementById("btn-upload-back").style.display = "none"
-    document.getElementById("scan-text").textContent = "All done!"
-    document.getElementById("submit-btn").disabled = false
+  // Si l'étape est faite → on reprend la photo. Sinon → galerie.
+  function actionBouton(nom) {
+    const carte = document.getElementById("card-" + nom)
+    if (carte.classList.contains("is-done")) {
+      reprendrePhoto(nom)
+    } else if (carte.classList.contains("is-active")) {
+      document.getElementById("upload-" + nom).click()
+    }
+  }
+
+  // Réinitialise une étape : vide l'input, repasse la carte en "active"
+  // Reprend UNIQUEMENT la photo cliquée, sans toucher aux autres
+  function reprendrePhoto(nom) {
+    document.getElementById("input-" + nom).value = ""
+    document.getElementById("upload-" + nom).value = ""
+
+    const carte = document.getElementById("card-" + nom)
+    carte.classList.remove("is-done")
+    carte.classList.add("is-active")
+    carte.querySelector(".capture-add").textContent = "+"
+
+    majEtape()
+  }
+
+  // Regarde quelles cartes sont faites et met à jour step + le bouton final
+  function majEtape() {
+    const ordre = ["tag", "front", "back"]
+
     step = 4
+    for (let i = 0; i < ordre.length; i++) {
+      const carte = document.getElementById("card-" + ordre[i])
+      if (!carte.classList.contains("is-done")) {
+        step = i + 1
+        break
+      }
+    }
+
+    ordre.forEach(function(n, i) {
+      const carte = document.getElementById("card-" + n)
+      if (carte.classList.contains("is-done")) return
+      carte.classList.remove("is-active", "is-pending")
+      carte.classList.add((i + 1 === step) ? "is-active" : "is-pending")
+    })
+
+    const tousFaits = (step === 4)
+    document.getElementById("submit-btn").disabled = !tousFaits
+    document.getElementById("icon-camera").classList.toggle("d-none", tousFaits)
+    document.getElementById("icon-arrow").classList.toggle("d-none", !tousFaits)
+
+    if (tousFaits) {
+      document.getElementById("scan-text").textContent = "All done!"
+    } else {
+      document.getElementById("scan-text").textContent = "SCAN " + ordre[step - 1].toUpperCase() + " PICTURE"
+    }
   }
+
 </script>
