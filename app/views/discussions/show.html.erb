@@ -1,46 +1,53 @@
-<div class="container py-5"
-     style="max-width: 700px;"
+<div class="quiz-page d-flex flex-column"
      data-controller="discussion-polling"
      data-discussion-polling-waiting-value="<%= @messages.last&.role == 'user' %>">
 
-  <div class="d-flex align-items-center mb-4">
-    <%= link_to analysis_path(@analysis), class: "text-dark me-3" do %>
-      <i class="fa-solid fa-arrow-left"></i>
-    <% end %>
-    <h4 class="mb-0 fw-bold text-uppercase" style="font-family: 'Albert Sans', sans-serif;">Expert Discussion</h4>
+  <%# En-tête %>
+  <div class="quiz-header">
+    <div class="quiz-eyebrow">
+      <span class="quiz-status-dot"></span> ASSISTANT
+    </div>
+    <div class="d-flex align-items-center">
+      <%= link_to analysis_path(@analysis), class: "chat-back me-2" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      <% end %>
+      <h1 class="quiz-title mb-0">Expert discussion</h1>
+    </div>
   </div>
 
-  <div class="d-flex flex-column gap-3 mb-4">
+  <%# Fil de messages %>
+  <div class="quiz-messages flex-grow-1">
     <% @messages.each do |message| %>
-      <% if message.role == "user" %>
-        <div class="align-self-end" style="max-width: 75%;">
-          <div class="p-3 text-white" style="background-color: #000; font-family: 'Albert Sans', sans-serif;">
-            <%= message.content %>
-          </div>
-        </div>
-      <% else %>
-        <div class="align-self-start" style="max-width: 75%;">
-          <div class="p-3 border border-dark border-2 markdown-body" style="background-color: white; font-family: 'Albert Sans', sans-serif;">
+      <div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
+        <div class="quiz-bubble">
+          <% if message.role == "assistant" %>
             <%= markdown(message.content) %>
-          </div>
+          <% else %>
+            <%= message.content %>
+          <% end %>
         </div>
-      <% end %>
+      </div>
     <% end %>
 
     <% if @messages.last&.role == "user" %>
-      <div class="align-self-start text-muted small fst-italic">Expert is typing…</div>
+      <div class="quiz-msg quiz-msg--assistant">
+        <div class="quiz-bubble quiz-typing">Expert is typing…</div>
+      </div>
     <% end %>
   </div>
 
-  <%= form_with model: @message, url: analysis_chat_messages_path(@analysis, @chat) do |f| %>
-    <div class="d-flex gap-2 align-items-end">
-      <%= f.text_area :content,
-            placeholder: "Ask a question about your analysis…",
-            class: "form-control border-dark border-2",
-            rows: 2,
-            style: "border-radius: 0; font-family: 'Albert Sans', sans-serif;" %>
-      <%= f.submit "Send", class: "btn btn_fibr" %>
-    </div>
-  <% end %>
-
+  <%# Barre de saisie %>
+  <div class="quiz-input-bar">
+    <%= form_with model: @message, url: analysis_chat_messages_path(@analysis, @chat) do |f| %>
+      <div class="quiz-input-row">
+        <%= f.text_area :content,
+              placeholder: "Ask a question about your analysis…",
+              class: "quiz-text-input",
+              rows: 1 %>
+        <button type="submit" class="quiz-send" aria-label="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.27 3.27 21 12 3.27 20.73 6 12Zm0 0h6"/></svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
 </div>

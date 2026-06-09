@@ -127,3 +127,21 @@
   flex-shrink: 0;
   cursor: pointer;
 }
+
+// --- Spécifique discussion ---
+.chat-back {
+  color: #1a1a1a;
+  display: inline-flex;
+  align-items: center;
+}
+.quiz-typing {
+  font-style: italic;
+  color: #9a8f7d;
+  background: #fff;
+}
+
+// textarea qui ne grossit pas et reste en pilule
+textarea.quiz-text-input {
+  resize: none;
+  line-height: 1.3;
+}
