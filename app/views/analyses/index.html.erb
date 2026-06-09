@@ -9,7 +9,7 @@
   <% else %>
     <%= form_with url: analyses_path, method: :get, local: true, class: "mb-4" do |f| %>
       <div class="input-group">
-        <%= f.text_field :query, value: params[:query], placeholder: "Search History…", class: "form-control" %>
+        <%= f.text_field :query, value: params[:query], placeholder: "Search History...", class: "form-control" %>
         <%= f.submit "Search", class: "btn btn-primary" %>
       </div>
     <% end %>
@@ -33,17 +33,24 @@
           </div>
 
           <div class="m-2 text">
-            <% if analysis.score %>
-              <% if analysis.score < 4.5 %>
+            <%# average across all criteria — same calculation as the show page %>
+            <%
+              total_score   = analysis.criteria.sum(:score)
+              max_score     = analysis.criteria.count * 10
+              average_score = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(1) : nil
+            %>
+
+            <% if average_score %>
+              <% if average_score < 4.5 %>
                 <% couleur = "danger" %>
-              <% elsif analysis.score < 7.5 %>
+              <% elsif average_score < 7.5 %>
                 <% couleur = "warning" %>
               <% else %>
                 <% couleur = "success" %>
               <% end %>
 
               <%
-                score_percentage = (analysis.score * 10).to_i
+                score_percentage = (average_score * 10).to_i
                 total_circumference = 113.1
                 stroke_offset = total_circumference - ((score_percentage / 100.0) * total_circumference)
               %>
@@ -63,7 +70,7 @@
                 </svg>
 
                 <div class="progress-inner-text">
-                  <%= analysis.score.to_i %>
+                  <%= average_score %>
                 </div>
               </div>
 
