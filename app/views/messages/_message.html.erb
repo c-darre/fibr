@@ -1,7 +1,5 @@
-<div class="mb-3 <%= message.role == "assistant" ? "text-start" : "text-end" %>">
-  <div class="d-inline-block px-3 py-2 rounded
-              <%= message.role == "assistant" ? "bg-light border" : "bg-primary text-white" %>"
-       style="max-width: 80%;">
+<div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
+  <div class="quiz-bubble">
     <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">Voir le résultat</a>" } %>
     <%= sanitize(linked, tags: %w[a], attributes: %w[href]) %>
   </div>

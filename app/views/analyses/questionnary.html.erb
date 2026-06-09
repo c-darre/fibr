@@ -1,14 +1,48 @@
 <%= turbo_stream_from "chat_#{@chat.id}" %>
 
-<div class="container py-5" style="max-width: 700px;">
-  <h4 class="mb-4">Environmental questionnaire</h4>
+<div class="quiz-page d-flex flex-column">
 
-  <div id="messages-container" class="mb-4">
+  <%# En-tête %>
+  <div class="quiz-header">
+    <div class="quiz-eyebrow">
+      <span class="quiz-status-dot"></span> ASSISTANT
+    </div>
+    <p class="quiz-step">ÉTAPE 3 · EMPREINTE</p>
+    <h1 class="quiz-title">Estimer l'impact</h1>
+  </div>
+
+  <%# Fil de messages %>
+  <div id="messages-container" class="quiz-messages flex-grow-1">
     <%= render @chat.messages.order(:created_at) %>
   </div>
 
-  <%= form_with url: analysis_chat_messages_path(@analysis, @chat), method: :post, local: true do |f| %>
-    <input type="text" name="message[content]" placeholder="Votre réponse (ex: taille M)" class="form-control mb-2" autocomplete="off">
-    <%= f.submit "Envoyer", class: "btn btn-primary" %>
-  <% end %>
+  <%# Barre de saisie %>
+  <div class="quiz-input-bar">
+    <div class="quiz-sizes">
+      <button type="button" class="quiz-size" data-size="S">S</button>
+      <button type="button" class="quiz-size" data-size="M">M</button>
+      <button type="button" class="quiz-size" data-size="L">L</button>
+    </div>
+
+    <%= form_with url: analysis_chat_messages_path(@analysis, @chat), method: :post, local: true, id: "quiz-form" do |f| %>
+      <div class="quiz-input-row">
+        <input type="text" name="message[content]" id="quiz-input"
+               placeholder="Votre réponse (ex: taille M)"
+               class="quiz-text-input" autocomplete="off">
+        <button type="submit" class="quiz-send" aria-label="Envoyer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.27 3.27 21 12 3.27 20.73 6 12Zm0 0h6"/></svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
 </div>
+
+<script>
+  // Clic sur une pastille de taille → remplit le champ et envoie direct
+  document.querySelectorAll(".quiz-size").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      document.getElementById("quiz-input").value = btn.dataset.size
+      document.getElementById("quiz-form").requestSubmit()
+    })
+  })
+</script>
