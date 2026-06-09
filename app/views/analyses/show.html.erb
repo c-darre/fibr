@@ -1,11 +1,9 @@
-<div class="container py-5" style="max-width: 700px;">
+<div class="result-page">
 
   <% if @analysis.pending? || @analysis.processing? %>
-    <%# ── Spinner + polling JS ──────────────────────────────────── %>
-    <div class="text-center py-5" id="processing-view">
-      <div class="spinner-border text-primary mb-4"
-           role="status"
-           style="width: 3rem; height: 3rem;">
+    <%# ── Spinner + polling (inchangé) ──────────────────── %>
+    <div class="container py-5 text-center" id="processing-view" style="max-width: 700px;">
+      <div class="spinner-border text-secondary mb-4" role="status" style="width: 3rem; height: 3rem;">
         <span class="visually-hidden">Analysis in progress…</span>
       </div>
       <h3 class="mb-2">Analysis in progress</h3>
@@ -14,9 +12,7 @@
 
     <script>
       const pollingInterval = setInterval(function () {
-        fetch('<%= analysis_path(@analysis, format: :json) %>', {
-          headers: { 'Accept': 'application/json' }
-        })
+        fetch('<%= analysis_path(@analysis, format: :json) %>', { headers: { 'Accept': 'application/json' } })
           .then(function (response) { return response.json(); })
           .then(function (data) {
             if (data.status !== 'processing' && data.status !== 'pending') {
@@ -29,81 +25,98 @@
     </script>
 
   <% elsif @analysis.completed? %>
-    <%# ── Résultats ─────────────────────────────────────────────── %>
-    <h2 class="mb-4">Analysis results</h2>
-
     <%
       total_score = @analysis.criteria.sum(:score)
       max_score   = @analysis.criteria.count * 10
       global_pct  = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(1) : 0
     %>
 
-    <div class="card text-center p-4 mb-5 shadow-sm">
-      <h5 class="text-muted mb-1">Overall score</h5>
-      <p class="display-2 fw-bold text-primary mb-2"><%= global_pct %></p>
-      <div class="progress mx-auto" style="height: 12px; max-width: 300px;">
-        <div class="progress-bar"
-             role="progressbar"
-             style="width: <%= global_pct %>%;"
-             aria-valuenow="<%= global_pct %>"
-             aria-valuemin="0"
-             aria-valuemax="100"></div>
+    <%# ── En-tête ──────────────────────────────────────── %>
+    <div class="result-header">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <p class="result-step">ÉTAPE 2 · RAPPORT</p>
+          <h1 class="result-title">Résultats de l'analyse</h1>
+          <p class="result-subtitle">Touchez un critère pour voir le détail.</p>
+        </div>
+        <% if @analysis.garment_type.present? %>
+          <span class="result-tag"><%= @analysis.garment_type %><%= " · #{@analysis.garment_size}" if @analysis.garment_size.present? %></span>
+        <% end %>
       </div>
     </div>
 
-    <h5 class="mb-3">Criteria details</h5>
-    <div class="row g-3">
-      <% @analysis.criteria.each do |criterion| %>
-        <div class="col-md-4">
-          <div class="card h-100 p-3 shadow-sm d-flex flex-row justify-content-between align-items-center gap-3">
+    <%# ── Cercle orbital ───────────────────────────────── %>
+    <div class="orbital" id="orbital">
+      <%# Le score au centre %>
+      <div class="orbital-center" id="orbital-center">
+        <div class="orbital-score"><%= global_pct %><span class="orbital-score-max">/10</span></div>
+        <div class="orbital-score-label">SCORE GLOBAL</div>
+        <div class="orbital-badge">
+          <span class="orbital-badge-dot"></span>
+          <% if global_pct >= 7 %>BONNE QUALITÉ<% elsif global_pct >= 4 %>QUALITÉ MOYENNE<% else %>QUALITÉ FAIBLE<% end %>
+        </div>
+      </div>
 
-            <div class="me-auto">
-              <h6 class="fw-bold mb-1"><%= criterion.name %></h6>
-              <p class="text-muted small mb-0"><%= criterion.detail %></p>
-            </div>
-
-            <span class="badge bg-primary fs-6 flex-shrink-0"><%= criterion.score %> / 10</span>
-
+      <%# Les critères en orbite (générés depuis la base) %>
+      <% @analysis.criteria.each_with_index do |criterion, i| %>
+        <div class="orbital-node"
+             data-index="<%= i %>"
+             data-name="<%= criterion.name %>"
+             data-score="<%= criterion.score %>"
+             data-detail="<%= criterion.detail %>">
+          <div class="orbital-node-circle">
+            <span class="orbital-node-score"><%= criterion.score %></span>
           </div>
+          <div class="orbital-node-label"><%= criterion.name %></div>
         </div>
       <% end %>
+
+      <%# Carte de détail (cachée, s'affiche au clic) %>
+      <div class="orbital-detail" id="orbital-detail">
+        <div class="orbital-detail-head">
+          <span class="orbital-detail-badge" id="detail-score">–</span>
+          <button type="button" class="orbital-detail-close" id="detail-close">✕</button>
+        </div>
+        <h3 class="orbital-detail-title" id="detail-name">–</h3>
+        <p class="orbital-detail-text" id="detail-text">–</p>
+      </div>
     </div>
 
-    <% if @analysis.co2.present? %>
-      <div class="card p-4 mb-4 shadow-sm">
-        <h5 class="mb-3">Estimated environmental impact</h5>
-        <p class="mb-1">CO₂: <strong><%= @analysis.co2.round(2) %> kg</strong></p>
-        <p class="mb-1">Water: <strong><%= @analysis.water.round(2) %></strong></p>
-        <p class="mb-1">Overall score: <strong><%= @analysis.global_score.round(0) %></strong></p>
-        <p class="text-muted small mt-2">Estimate based on size <%= @analysis.garment_size %>.</p>
-      </div>
+    <%# ── Carte "Aller plus loin" / impact ─────────────── %>
+    <div class="result-bottom">
+      <% if @analysis.co2.present? %>
+        <div class="impact-card">
+          <p class="result-step">IMPACT ENVIRONNEMENTAL</p>
+          <div class="impact-row"><span>CO₂</span><strong><%= @analysis.co2.round(2) %> kg</strong></div>
+          <div class="impact-row"><span>Eau</span><strong><%= @analysis.water.round(2) %></strong></div>
+          <div class="impact-row"><span>Score impact</span><strong><%= @analysis.global_score.round(0) %></strong></div>
+          <p class="result-subtitle mt-2">Estimation basée sur la taille <%= @analysis.garment_size %>.</p>
+          <%= link_to "Poser une question →", analysis_discussion_path(@analysis), class: "btn_fibr_pill mt-3 d-block text-center text-decoration-none" %>
+        </div>
+      <% else %>
+        <div class="impact-card">
+          <p class="result-step">⬡ OPTIONNEL</p>
+          <h3 class="orbital-detail-title">Aller plus loin</h3>
+          <p class="result-subtitle">Quelques questions suffisent pour estimer l'empreinte carbone et eau de cette pièce.</p>
+          <%= button_to "Estimer l'impact environnemental →", start_questionnary_analysis_path(@analysis), method: :post, class: "btn_fibr_pill btn_fibr_pill--green mt-3 w-100 border-0" %>
+        </div>
+      <% end %>
 
-      <div class="mt-3 text-center ">
-        <%= link_to "Ask questions", analysis_discussion_path(@analysis),
-              class: "btn btn-outline-primary" %>
+      <div class="text-center mt-3">
+        <%= button_to "↻ Nouvelle analyse", analyses_path, method: :post, class: "result-new-btn" %>
       </div>
-    <% else %>
-      <div class="text-center mt-4 mb-4 d-grid">
-        <%= button_to "More info", start_questionnary_analysis_path(@analysis),
-              method: :post, class: "btn btn-outline-primary" %>
-      </div>
-    <% end %>
-
-    <div class="mt-4 text-center d-grid">
-      <%= button_to "New analysis", analyses_path,
-            method: :post,
-            class:  "btn btn-primary" %>
     </div>
 
   <% elsif @analysis.failed? %>
-    <%# ── Erreur ─────────────────────────────────────────────────── %>
-    <div class="alert alert-danger">
-      <h4 class="alert-heading">Analysis failed</h4>
-      <p class="mb-3">An error occurred during processing. Please try again.</p>
-      <%= button_to "Try again", analyses_path,
-            method: :post,
-            class:  "btn btn-outline-danger" %>
+    <div class="container py-5" style="max-width: 700px;">
+      <div class="alert alert-danger">
+        <h4 class="alert-heading">Analysis failed</h4>
+        <p class="mb-3">An error occurred during processing. Please try again.</p>
+        <%= button_to "Try again", analyses_path, method: :post, class: "btn btn-outline-danger" %>
+      </div>
     </div>
   <% end %>
 
 </div>
+
+<script src="<%= asset_path('orbital.js') %>" data-turbo-track="reload"></script>
