@@ -1,104 +1,13 @@
+<%= turbo_stream_from @analysis %>
+
 <div class="container py-5" style="max-width: 700px;">
+  <%= render "analysis_header", analysis: @analysis %>
+  <%= render "analysis_criteria", analysis: @analysis %>
+  <%= render "analysis_ecobalyse", analysis: @analysis %>
 
-  <% if @analysis.pending? || @analysis.processing? %>
-    <%# ── Spinner + polling JS ──────────────────────────────────── %>
-    <div class="text-center py-5" id="processing-view">
-      <div class="spinner-border text-primary mb-4"
-           role="status"
-           style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Analysis in progress…</span>
-      </div>
-      <h3 class="mb-2">Analysis in progress</h3>
-      <p class="text-muted">We are analysing your garment. This takes a few seconds…</p>
-    </div>
-
-    <script>
-      const pollingInterval = setInterval(function () {
-        fetch('<%= analysis_path(@analysis, format: :json) %>', {
-          headers: { 'Accept': 'application/json' }
-        })
-          .then(function (response) { return response.json(); })
-          .then(function (data) {
-            if (data.status !== 'processing' && data.status !== 'pending') {
-              clearInterval(pollingInterval);
-              window.location.reload();
-            }
-          })
-          .catch(function () { clearInterval(pollingInterval); });
-      }, 2000);
-    </script>
-
-  <% elsif @analysis.completed? %>
-    <%# ── Résultats ─────────────────────────────────────────────── %>
-    <h2 class="mb-4">Analysis results</h2>
-
-    <%
-      total_score = @analysis.criteria.sum(:score)
-      max_score   = @analysis.criteria.count * 10
-      global_pct  = max_score > 0 ? (total_score.to_f / max_score * 100).round : 0
-    %>
-
-    <div class="card text-center p-4 mb-5 shadow-sm">
-      <h5 class="text-muted mb-1">Overall score</h5>
-      <p class="display-2 fw-bold text-primary mb-2"><%= global_pct %>%</p>
-      <div class="progress mx-auto" style="height: 12px; max-width: 300px;">
-        <div class="progress-bar"
-             role="progressbar"
-             style="width: <%= global_pct %>%;"
-             aria-valuenow="<%= global_pct %>"
-             aria-valuemin="0"
-             aria-valuemax="100"></div>
-      </div>
-    </div>
-
-    <h5 class="mb-3">Criteria details</h5>
-    <div class="row g-3">
-      <% @analysis.criteria.each do |criterion| %>
-        <div class="col-md-4">
-          <div class="card h-100 p-3 shadow-sm">
-            <h6 class="fw-bold mb-1"><%= criterion.name %></h6>
-            <p class="text-muted small flex-grow-1 mb-2"><%= criterion.detail %></p>
-            <span class="badge bg-primary fs-6"><%= criterion.score %> / 10</span>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <% if @analysis.co2.present? %>
-      <div class="card p-4 mb-4 shadow-sm">
-        <h5 class="mb-3">Estimated environmental impact</h5>
-        <p class="mb-1">CO₂: <strong><%= @analysis.co2.round(2) %> kg</strong></p>
-        <p class="mb-1">Water: <strong><%= @analysis.water.round(2) %></strong></p>
-        <p class="mb-1">Overall score: <strong><%= @analysis.global_score.round(0) %></strong></p>
-        <p class="text-muted small mt-2">Estimate based on size <%= @analysis.garment_size %>.</p>
-      </div>
-
-      <div class="mt-3 text-center">
-        <%= link_to "Ask questions", analysis_discussion_path(@analysis),
-              class: "btn btn-outline-primary" %>
-      </div>
-    <% else %>
-      <div class="text-center mb-4">
-        <%= button_to "More info", start_questionnary_analysis_path(@analysis),
-              method: :post, class: "btn btn-outline-primary" %>
-      </div>
-    <% end %>
-
-    <div class="mt-4 text-center">
-      <%= button_to "New analysis", analyses_path,
-            method: :post,
-            class:  "btn btn_fibr_outline" %>
-    </div>
-
-  <% elsif @analysis.failed? %>
-    <%# ── Erreur ─────────────────────────────────────────────────── %>
-    <div class="alert alert-danger">
-      <h4 class="alert-heading">Analysis failed</h4>
-      <p class="mb-3">An error occurred during processing. Please try again.</p>
-      <%= button_to "Try again", analyses_path,
-            method: :post,
-            class:  "btn btn-outline-danger" %>
-    </div>
-  <% end %>
-
+  <div class="mt-4 text-center">
+    <%= button_to "New analysis", analyses_path,
+          method: :post,
+          class: "btn btn_fibr_outline" %>
+  </div>
 </div>

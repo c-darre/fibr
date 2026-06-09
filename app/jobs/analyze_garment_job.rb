@@ -9,10 +9,12 @@ class AnalyzeGarmentJob < ApplicationJob
     parsed   = ask_ai(analysis)
     save_results(analysis, parsed)
     analysis.completed!
+    broadcast_results(analysis)
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.error "AnalyzeGarmentJob: Analysis ##{analysis_id} not found — #{e.message}"
   rescue StandardError => e
     analysis&.failed!
+    broadcast_section(analysis, "analysis_header")
     Rails.logger.error "AnalyzeGarmentJob: failed for Analysis ##{analysis_id} — #{e.message}"
   end
 
@@ -163,6 +165,21 @@ class AnalyzeGarmentJob < ApplicationJob
       }
       Provide exactly these 5 criteria. Do not include any text outside the JSON.
     PROMPT
+  end
+
+  def broadcast_results(analysis)
+    %w[analysis_header analysis_criteria analysis_ecobalyse].each do |target|
+      broadcast_section(analysis, target)
+    end
+  end
+
+  def broadcast_section(analysis, target)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      analysis,
+      target: target,
+      partial: "analyses/#{target}",
+      locals: { analysis: analysis }
+    )
   end
 
   # The message sent to the AI alongside the photos

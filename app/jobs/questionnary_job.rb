@@ -53,6 +53,13 @@ class QuestionnaryJob < ApplicationJob
       garment_size: size
     )
 
+    Turbo::StreamsChannel.broadcast_replace_to(
+      analysis,
+      target: "analysis_ecobalyse",
+      partial: "analyses/analysis_ecobalyse",
+      locals: { analysis: analysis }
+    )
+
     chat.messages.create!(
       role: :assistant,
       content: "Parfait, taille #{size} notée ! Voir le résultat : #{Rails.application.routes.url_helpers.analysis_path(analysis)}"

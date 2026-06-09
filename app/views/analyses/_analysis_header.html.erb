@@ -1,0 +1,41 @@
+<div id="analysis_header">
+  <% if analysis.pending? || analysis.processing? %>
+    <div class="card text-center p-4 mb-5 shadow-sm">
+      <p class="placeholder-glow mb-2">
+        <span class="placeholder col-4 rounded"></span>
+      </p>
+      <p class="display-2 fw-bold text-primary mb-2 placeholder-glow">
+        <span class="placeholder col-3 rounded"></span>
+      </p>
+      <div class="progress mx-auto" style="height: 12px; max-width: 300px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%;"></div>
+      </div>
+      <p class="text-muted mt-3 small">Analysing your garment…</p>
+    </div>
+  <% elsif analysis.failed? %>
+    <div class="alert alert-danger">
+      <h4 class="alert-heading">Analysis failed</h4>
+      <p class="mb-3">An error occurred during processing. Please try again.</p>
+      <%= button_to "Try again", analyses_path, method: :post, class: "btn btn-outline-danger" %>
+    </div>
+  <% elsif analysis.completed? %>
+    <h2 class="mb-4">Analysis results</h2>
+    <%
+      total_score = analysis.criteria.sum(:score)
+      max_score   = analysis.criteria.count * 10
+      global_pct  = max_score > 0 ? (total_score.to_f / max_score * 100).round : 0
+    %>
+    <div class="card text-center p-4 mb-5 shadow-sm">
+      <h5 class="text-muted mb-1">Overall score</h5>
+      <p class="display-2 fw-bold text-primary mb-2"><%= global_pct %>%</p>
+      <div class="progress mx-auto" style="height: 12px; max-width: 300px;">
+        <div class="progress-bar"
+             role="progressbar"
+             style="width: <%= global_pct %>%;"
+             aria-valuenow="<%= global_pct %>"
+             aria-valuemin="0"
+             aria-valuemax="100"></div>
+      </div>
+    </div>
+  <% end %>
+</div>

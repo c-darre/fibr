@@ -1,0 +1,19 @@
+<div id="analysis_ecobalyse">
+  <% if analysis.co2.present? %>
+    <div class="card p-4 mb-4 shadow-sm">
+      <h5 class="mb-3">Estimated environmental impact</h5>
+      <p class="mb-1">CO₂: <strong><%= analysis.co2.round(2) %> kg</strong></p>
+      <p class="mb-1">Water: <strong><%= analysis.water.round(2) %></strong></p>
+      <p class="mb-1">Overall score: <strong><%= analysis.global_score.round(0) %></strong></p>
+      <p class="text-muted small mt-2">Estimate based on size <%= analysis.garment_size %>.</p>
+    </div>
+    <div class="mt-3 text-center">
+      <%= link_to "Ask questions", analysis_discussion_path(analysis), class: "btn btn-outline-primary" %>
+    </div>
+  <% elsif analysis.completed? %>
+    <div class="text-center mb-4">
+      <%= button_to "More info", start_questionnary_analysis_path(analysis),
+            method: :post, class: "btn btn-outline-primary" %>
+    </div>
+  <% end %>
+</div>
