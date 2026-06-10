@@ -55,9 +55,9 @@
     <div class="result-header">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <p class="result-step">ÉTAPE 2 · RAPPORT</p>
-          <h1 class="result-title">Résultats de l'analyse</h1>
-          <p class="result-subtitle">Touchez un critère pour voir le détail.</p>
+          <p class="result-step">STEP 2 · REPORT</p>
+          <h1 class="result-title">Analysis results</h1>
+          <p class="result-subtitle">Tap a criterion to see the detail.</p>
         </div>
         <% if @analysis.garment_type.present? %>
           <span class="result-tag"><%= @analysis.garment_type %><%= " · #{@analysis.garment_size}" if @analysis.garment_size.present? %></span>
@@ -73,7 +73,7 @@
         <div class="orbital-score-label">SCORE GLOBAL</div>
         <div class="orbital-badge">
           <span class="orbital-badge-dot"></span>
-          <% if global_pct >= 7 %>BONNE QUALITÉ<% elsif global_pct >= 4 %>QUALITÉ MOYENNE<% else %>QUALITÉ FAIBLE<% end %>
+          <% if global_pct >= 7 %>GOOD QUALITY<% elsif global_pct >= 4 %>AVERAGE QUALITY<% else %>LOW QUALITY<% end %>
         </div>
       </div>
 
@@ -106,24 +106,24 @@
     <div class="result-bottom">
       <% if @analysis.co2.present? %>
         <div class="impact-card">
-          <p class="result-step">IMPACT ENVIRONNEMENTAL</p>
+          <p class="result-step">ENVIRONMENTAL IMPACT</p>
           <div class="impact-row"><span>CO₂</span><strong><%= @analysis.co2.round(2) %> kg</strong></div>
-          <div class="impact-row"><span>Eau</span><strong><%= @analysis.water.round(2) %></strong></div>
-          <div class="impact-row"><span>Score impact</span><strong><%= @analysis.global_score.round(0) %></strong></div>
-          <p class="result-subtitle mt-2">Estimation basée sur la taille <%= @analysis.garment_size %>.</p>
-          <%= link_to "Poser une question →", analysis_discussion_path(@analysis), class: "btn_fibr_pill mt-3 d-block text-center text-decoration-none" %>
+          <div class="impact-row"><span>Water</span><strong><%= @analysis.water.round(2) %></strong></div>
+          <div class="impact-row"><span>Impact score</span><strong><%= @analysis.global_score.round(0) %></strong></div>
+          <p class="result-subtitle mt-2">Estimate based on size <%= @analysis.garment_size %>.</p>
+          <%= link_to "Ask a question →", analysis_discussion_path(@analysis), class: "btn_fibr_pill mt-3 d-block text-center text-decoration-none" %>
         </div>
       <% else %>
         <div class="impact-card">
           <p class="result-step">⬡ OPTIONNEL</p>
-          <h3 class="orbital-detail-title">Aller plus loin</h3>
-          <p class="result-subtitle">Quelques questions suffisent pour estimer l'empreinte carbone et eau de cette pièce.</p>
-          <%= button_to "Estimer l'impact environnemental →", start_questionnary_analysis_path(@analysis), method: :post, class: "btn_fibr_pill btn_fibr_pill--green mt-3 w-100 border-0" %>
+          <h3 class="orbital-detail-title">Go further</h3>
+          <p class="result-subtitle">A few questions are enough to estimate the carbon and water footprint of this item.</p>
+          <%= button_to "Estimate environmental impact →", start_questionnary_analysis_path(@analysis), method: :post, class: "btn_fibr_pill btn_fibr_pill--green mt-3 w-100 border-0" %>
         </div>
       <% end %>
 
       <div class="text-center mt-3">
-        <%= button_to "↻ Nouvelle analyse", analyses_path, method: :post, class: "result-new-btn" %>
+        <%= button_to "↻ New analysis", analyses_path, method: :post, class: "result-new-btn" %>
       </div>
     </div>
 
