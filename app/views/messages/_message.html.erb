@@ -2,7 +2,7 @@
   <div class="d-inline-block px-3 py-2 rounded
               <%= message.role == "assistant" ? "bg-light border" : "bg-primary text-white" %>"
        style="max-width: 80%;">
-    <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">Voir le résultat</a>" } %>
+    <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">See the result</a>" } %>
     <%= sanitize(linked, tags: %w[a], attributes: %w[href]) %>
   </div>
 </div>

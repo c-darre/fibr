@@ -8,7 +8,7 @@
   </div>
 
   <%= form_with url: analysis_chat_messages_path(@analysis, @chat), method: :post, local: true do |f| %>
-    <input type="text" name="message[content]" placeholder="Votre réponse (ex: taille M)" class="form-control mb-2" autocomplete="off">
-    <%= f.submit "Envoyer", class: "btn btn-primary" %>
+    <input type="text" name="message[content]" placeholder="Your answer (e.g. size M)" class="form-control mb-2" autocomplete="off">
+    <%= f.submit "Send", class: "btn btn-primary" %>
   <% end %>
 </div>

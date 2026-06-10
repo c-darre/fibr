@@ -19,7 +19,7 @@ class QuestionnaryJob < ApplicationJob
     if size.nil?
       chat.messages.create!(
         role: :assistant,
-        content: "Bonjour ! Quelle est la taille de votre #{known_type || 'vêtement'} ? (XS, S, M, L, XL ou XXL)"
+        content: "Hello! What is the size of your #{known_type || 'garment'}? (XS, S, M, L, XL or XXL)"
       )
       return
     end
@@ -28,7 +28,7 @@ class QuestionnaryJob < ApplicationJob
     if composition.blank?
       chat.messages.create!(
         role: :assistant,
-        content: "Impossible de calculer l'impact : composition illisible."
+        content: "Unable to calculate impact: composition is unreadable."
       )
       return
     end
@@ -42,7 +42,7 @@ class QuestionnaryJob < ApplicationJob
     Rails.logger.info("ECOBALYSE RESULT -> #{result.inspect}")
 
     if result[:error]
-      chat.messages.create!(role: :assistant, content: "Une erreur est survenue lors du calcul de l'impact.")
+      chat.messages.create!(role: :assistant, content: "An error occurred while calculating the impact.")
       return
     end
 
@@ -55,7 +55,8 @@ class QuestionnaryJob < ApplicationJob
 
     chat.messages.create!(
       role: :assistant,
-      content: "Parfait, taille #{size} notée ! Voir le résultat : #{Rails.application.routes.url_helpers.analysis_path(analysis)}"
+      content: "Perfect, size #{size} noted! See the result: " \
+               "#{Rails.application.routes.url_helpers.analysis_path(analysis)}"
     )
   end
 
