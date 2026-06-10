@@ -29,7 +29,7 @@
     </button>
   </div>
 
-  <div class="offcanvas-body d-flex flex-column" style="background-color:#f9e9d9;;">
+  <div class="offcanvas-body d-flex flex-column" style="background-color:#f9e9d9;">
     <div class="d-grid gap-2">
       <%= button_to analyses_path,
         method: :post,
@@ -55,7 +55,7 @@
           <div class="d-flex flex-column gap-2">
             <% recent_analyses.each do |analysis| %>
               <%= link_to analysis_path(analysis),
-                class: "text-decoration-none px-3 py-2 card list-group-item mb-2 shadow-sm rounded border text-dark small fw-semibold" do %>
+                class: "text-decoration-none px-3 py-2 card list-group-item mb-2 shadow-sm rounded border text-dark small fw-semibold bg-white" do %>
                 <%= analysis.garment_type.presence || "Analysis of #{analysis.created_at.strftime('%d/%m/%Y')}" %>
               <% end %>
             <% end %>
@@ -70,7 +70,7 @@
         <%= link_to "Sign out",
           destroy_user_session_path,
           data: { turbo_method: :delete },
-          class: "btn btn-outline-secondary w-100 fw-semibold" %>
+          class: "btn btn-outline-secondary w-100 fw-semibold bg-white" %>
       </div>
     <% else %>
       <div class="mt-auto d-grid gap-2">
