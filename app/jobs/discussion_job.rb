@@ -57,7 +57,8 @@ class DiscussionJob < ApplicationJob
 
       FORMATTING:
       - Use at most one emoji per response, only if it adds real value.
-      - Never use h1 (#) or h2 (##) headings — use bold (**text**) or h3 (###) at most.
+      - Heading Structure & Hierarchy: Never use H1 (#) headings. Use only H2 (##) for main sections and H3 (###) for sub-sections within those sections.
+        Every heading (both H2 and H3) must always be wrapped in bold syntax (e.g., ## Main Heading and ### Sub-heading). Never use unbolded headings.
       - Be educational, honest, and concise. Always reply in the user's language.
 
       #{analysis_context(analysis)}
