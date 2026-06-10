@@ -1,26 +1,25 @@
 .navbar {
-  // Removes the dark outline/border Bootstrap puts around the toggler button when clicked
   .navbar-toggler:focus {
-    box-shadow: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    position: relative;
+    z-index: 1030; // (1030 = standard Bootstrap pour s'assurer que la nav passe par-dessus tout)
   }
 
-  // Customize your new burger menu icon here
   .custom-burger-icon {
-    color: #ffffff;
-    font-size: 1.5rem; // Adjust this value to make the icon larger or smaller
+    color: #000000;
+    font-size: 1.8rem;
     transition: color 0.2s ease-in-out;
     padding-left: 15px;
 
     &:hover {
-      color: #7b7b7b; // Adds a subtle hover state color
+      color: #7b7b7b;
     }
   }
 
   .history-card {
-  background-color: white;
-  border-color: #000000;
-  border-width: 1px;
-  color: #000000;
-}
-
+    background-color: white;
+    border-color: #000000;
+    border-width: 1px;
+    color: #000000;
+  }
 }
