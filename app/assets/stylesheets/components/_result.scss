@@ -135,7 +135,10 @@
   letter-spacing: 0.5px;
   color: #6b6358;
   margin-top: 0.3rem;
-  white-space: nowrap;
+  width: 90px;              // plus large que le cercle
+  margin-left: -13px;       // recentre (le node fait 64px, on déborde de 13px de chaque côté)
+  line-height: 1.15;
+  white-space: normal;      // ← autorise 2 lignes au lieu de couper
 }
 .orbital-node.is-active .orbital-node-circle {
   background: $sage-green;

@@ -119,4 +119,64 @@
 
 </div>
 
-<script src="<%= asset_path('orbital.js') %>" data-turbo-track="reload"></script>
+<script>
+  document.addEventListener("turbo:load", function () {
+    const orbital = document.getElementById("orbital")
+    if (!orbital) return
+    if (orbital.dataset.initialized === "true") return
+    orbital.dataset.initialized = "true"
+
+    const noeuds = Array.from(document.querySelectorAll(".orbital-node"))
+    const total = noeuds.length
+    const rayon = 145
+    let angle = 0
+    let enRotation = true
+    let noeudActif = null
+
+    const detail = document.getElementById("orbital-detail")
+
+    function placerNoeuds() {
+      noeuds.forEach(function (noeud, i) {
+        const a = ((i / total) * 360 + angle) * Math.PI / 180
+        const x = Math.cos(a) * rayon
+        const y = Math.sin(a) * rayon
+        noeud.style.transform = "translate(" + x + "px, " + y + "px)"
+      })
+    }
+
+    function animer() {
+      if (enRotation) {
+        angle = (angle + 0.075) % 360
+        placerNoeuds()
+      }
+      requestAnimationFrame(animer)
+    }
+
+    function ouvrirDetail(noeud) {
+      document.getElementById("detail-name").textContent  = noeud.dataset.name
+      document.getElementById("detail-score").textContent = noeud.dataset.score + " / 10"
+      document.getElementById("detail-text").textContent  = noeud.dataset.detail
+      detail.classList.add("is-open")
+    }
+
+    noeuds.forEach(function (noeud) {
+      noeud.addEventListener("click", function () {
+        if (noeudActif) noeudActif.classList.remove("is-active")
+        noeud.classList.add("is-active")
+        noeudActif = noeud
+        enRotation = false
+        ouvrirDetail(noeud)
+      })
+    })
+
+    document.getElementById("detail-close").addEventListener("click", function () {
+      detail.classList.remove("is-open")
+      if (noeudActif) noeudActif.classList.remove("is-active")
+      noeudActif = null
+      enRotation = true
+    })
+
+    placerNoeuds()
+    animer()
+  })
+</script>
