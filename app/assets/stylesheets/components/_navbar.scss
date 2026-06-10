@@ -1,8 +1,13 @@
 .navbar {
-  .navbar-toggler:focus {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-    position: relative;
-    z-index: 1030; // (1030 = standard Bootstrap pour s'assurer que la nav passe par-dessus tout)
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1030;
+
+  .navbar-toggler {
+    &:focus, &:active {
+      outline: none !important;
+      box-shadow: none !important;
+    }
   }
 
   .custom-burger-icon {
