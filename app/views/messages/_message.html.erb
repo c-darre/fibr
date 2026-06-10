@@ -1,6 +1,6 @@
 <div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
   <div class="quiz-bubble">
-    <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">Voir le résultat</a>" } %>
+    <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">See the result</a>" } %>
     <%= sanitize(linked, tags: %w[a], attributes: %w[href]) %>
   </div>
 </div>
