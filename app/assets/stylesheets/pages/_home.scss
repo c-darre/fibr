@@ -111,6 +111,20 @@ $bg-color: #f9e9d9;
   }
 }
 
+.history-btn {
+  background-color: #fff;
+  // color: #fff;
+  border-radius: 50px; // Forme de pilule interne
+  padding: 8px 30px;
+  border: none;
+  transition: background-color 0.3s ease;
+
+  &:hover, &:focus {
+    background-color: #888; // Léger feedback visuel
+    color: #fff;
+  }
+}
+
 .go-text {
   font-family: $font-display;
   font-size: 1.3rem;

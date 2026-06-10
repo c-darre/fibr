@@ -24,7 +24,10 @@ class QuestionnaryJob < ApplicationJob
 
     return if analysis.co2.present?
 
-    known_type = PRODUCT_TYPE_LABELS[analysis.ecobalyse_fields&.dig("product_type")]
+    # Clé Ecobalyse (ex. "manteau") → c'est CE qu'on envoie à l'API
+    product_type = analysis.ecobalyse_fields&.dig("product_type")
+    # Libellé anglais (ex. "coat") → UNIQUEMENT pour le message affiché à l'utilisateur
+    known_type = PRODUCT_TYPE_LABELS[product_type]
 
     last_user_content = chat.messages.where(role: :user).order(:created_at).last&.content.to_s
     size = last_user_content[SIZE_LETTER_PATTERN, 1]&.upcase
@@ -48,8 +51,8 @@ class QuestionnaryJob < ApplicationJob
     end
 
     result = EcobalyseService.new(
-      mass: EcobalyseService.estimate_mass(known_type, letter_size(size)),
-      product: known_type,
+      mass: EcobalyseService.estimate_mass(product_type, letter_size(size)),
+      product: product_type,
       materials: EcobalyseService.build_materials(composition)
     ).call
 
