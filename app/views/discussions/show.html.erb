@@ -1,6 +1,6 @@
-<div class="quiz-page d-flex flex-column"
-     data-controller="discussion-polling"
-     data-discussion-polling-waiting-value="<%= @messages.last&.role == 'user' %>">
+<%= turbo_stream_from @chat %>
+
+<div class="quiz-page d-flex flex-column">
 
   <%# En-tête %>
   <div class="quiz-header">
@@ -16,7 +16,7 @@
   </div>
 
   <%# Fil de messages %>
-  <div class="quiz-messages flex-grow-1">
+  <div id="messages-container" class="quiz-messages flex-grow-1">
     <% @messages.each do |message| %>
       <div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
         <div class="quiz-bubble">
@@ -30,7 +30,7 @@
     <% end %>
 
     <% if @messages.last&.role == "user" %>
-      <div class="quiz-msg quiz-msg--assistant">
+      <div id="typing-indicator" class="quiz-msg quiz-msg--assistant">
         <div class="quiz-bubble quiz-typing">Expert is typing…</div>
       </div>
     <% end %>

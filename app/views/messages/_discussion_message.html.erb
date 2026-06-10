@@ -1,0 +1,9 @@
+<div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
+  <div class="quiz-bubble">
+    <% if message.role == "assistant" %>
+      <%= markdown(message.content) %>
+    <% else %>
+      <%= message.content %>
+    <% end %>
+  </div>
+</div>
