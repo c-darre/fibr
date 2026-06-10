@@ -29,18 +29,18 @@
     </button>
   </div>
 
-  <div class="offcanvas-body d-flex flex-column ">
+  <div class="offcanvas-body d-flex flex-column" style="background-color:#f9e9d9;;">
     <div class="d-grid gap-2">
       <%= button_to analyses_path,
         method: :post,
-        class: "btn btn-secondary text-start fw-semibold" do %>
+        class: "btn go-btn text-start fw-semibold" do %>
         + New analysis
       <% end %>
       <%= link_to "History",
         analyses_path,
-        class: "btn btn-light text-start fw-semibold" %>
+        class: "btn history-btn text-center fw-semibold",
+        style: "width: 33%; background-color: #fff; border-radius: 50px;" %>
     </div>
-
     <hr>
 
     <% if user_signed_in? %>
@@ -76,7 +76,7 @@
       <div class="mt-auto d-grid gap-2">
         <%= link_to "Se connecter",
           new_user_session_path,
-          class: "btn btn-outline-secondary" %>
+          class: "btn btn-outline-secondary bg-white" %>
         <%= link_to "S'inscrire",
           new_user_registration_path,
           class: "btn btn-secondary" %>
