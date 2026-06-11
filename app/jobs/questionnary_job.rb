@@ -72,11 +72,11 @@ class QuestionnaryJob < ApplicationJob
 
     chat.messages.create!(
       role: :assistant,
-      content: "Perfect, size #{size} noted! See the result: #{Rails.application.routes.url_helpers.analysis_path(analysis)}"
+      content: "Perfect, size #{size} noted! To see your results, click here: #{Rails.application.routes.url_helpers.analysis_path(analysis)}"
     )
   end
 
-  private
+  private 
 
   def letter_size(size)
     return size unless size.match?(/\A\d+\z/)

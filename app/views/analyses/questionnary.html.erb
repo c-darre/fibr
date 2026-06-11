@@ -4,11 +4,7 @@
 
   <%# En-tête %>
   <div class="quiz-header">
-    <div class="quiz-eyebrow">
-      <span class="quiz-status-dot"></span> ASSISTANT
-    </div>
-    <p class="quiz-step">STEP 3 · FOOTPRINT</p>
-    <h1 class="quiz-title">Estimate the impact</h1>
+<h1 class="quiz-title">Estimate the impact</h1>
   </div>
 
   <%# Fil de messages %>
@@ -19,9 +15,12 @@
   <%# Barre de saisie %>
   <div class="quiz-input-bar">
     <div class="quiz-sizes">
+      <button type="button" class="quiz-size" data-size="XS">XS</button>
       <button type="button" class="quiz-size" data-size="S">S</button>
       <button type="button" class="quiz-size" data-size="M">M</button>
       <button type="button" class="quiz-size" data-size="L">L</button>
+      <button type="button" class="quiz-size" data-size="XL">XL</button>
+      <button type="button" class="quiz-size" data-size="XXL">XXL</button>
     </div>
 
     <%= form_with url: analysis_chat_messages_path(@analysis, @chat), method: :post, local: true, id: "quiz-form" do |f| %>
