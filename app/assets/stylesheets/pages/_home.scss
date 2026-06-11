@@ -4,6 +4,10 @@ $font-cursive: 'Savoye LET', cursive;
 $font-display: 'Optician Sans', sans-serif;
 $bg-color: #f9e9d9;
 
+body {
+  background-color: $bg-color;
+}
+
 .homepage-wrapper {
   background-color: $bg-color;
   color: #000;
