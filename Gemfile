@@ -74,5 +74,6 @@ group :test do
 end
 
 gem "ruby_llm"
+gem "ruby_llm-schema"
 gem "cloudinary", "~> 2.4"
 gem "redcarpet"
