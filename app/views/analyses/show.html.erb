@@ -49,15 +49,25 @@
       total_score = @analysis.criteria.sum(:score)
       max_score   = @analysis.criteria.count * 10
       global_pct  = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(1) : 0
+
+      # Logique pour la couleur et le texte de la note
+      if global_pct >= 7
+        badge_text = "GOOD"
+        badge_color = "#198754" # Vert (Bootstrap success)
+      elsif global_pct >= 4
+        badge_text = "AVERAGE"
+        badge_color = "#ffc107" # Jaune (Bootstrap warning)
+      else
+        badge_text = "LOW"
+        badge_color = "#dc3545" # Rouge (Bootstrap danger)
+      end
     %>
 
     <%# ── En-tête ──────────────────────────────────────── %>
     <div class="result-header">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <p class="result-step">STEP 2 · REPORT</p>
-          <h1 class="result-title">Analysis results</h1>
-          <p class="result-subtitle">Tap a criterion to see the detail.</p>
+          <h1 class="start-text text-uppercase" style="margin: 0px; font-size: 24px; margin-bottom: -22px;">Analysis results</h1>
         </div>
         <% if @analysis.garment_type.present? %>
           <span class="result-tag"><%= @analysis.garment_type %><%= " · #{@analysis.garment_size}" if @analysis.garment_size.present? %></span>
@@ -66,39 +76,52 @@
     </div>
 
     <%# ── Cercle orbital ───────────────────────────────── %>
-    <div class="orbital" id="orbital">
-      <%# Le score au centre %>
-      <div class="orbital-center" id="orbital-center">
-        <div class="orbital-score"><%= global_pct %><span class="orbital-score-max">/10</span></div>
-        <div class="orbital-score-label">SCORE GLOBAL</div>
-        <div class="orbital-badge">
-          <span class="orbital-badge-dot"></span>
-          <% if global_pct >= 7 %>GOOD QUALITY<% elsif global_pct >= 4 %>AVERAGE QUALITY<% else %>LOW QUALITY<% end %>
-        </div>
-      </div>
-
-      <%# Les critères en orbite (générés depuis la base) %>
-      <% @analysis.criteria.each_with_index do |criterion, i| %>
-        <div class="orbital-node"
-             data-index="<%= i %>"
-             data-name="<%= criterion.name %>"
-             data-score="<%= criterion.score %>"
-             data-detail="<%= criterion.detail %>">
-          <div class="orbital-node-circle">
-            <span class="orbital-node-score"><%= criterion.score %></span>
+    <div class="d-flex justify-content-center w-100">
+      <div class="orbital" id="orbital" style="margin-top: -22px;">
+        <%# Le score au centre %>
+        <div class="orbital-center" id="orbital-center">
+          <div class="orbital-score"><%= global_pct %><span class="orbital-score-max">/10</span></div>
+          <div class="orbital-badge" style="color: <%= badge_color %>;">
+            <span class="orbital-badge-dot" style="background-color: <%= badge_color %>;"></span>
+            <%= badge_text %>
           </div>
-          <div class="orbital-node-label"><%= criterion.name %></div>
         </div>
-      <% end %>
 
-      <%# Carte de détail (cachée, s'affiche au clic) %>
-      <div class="orbital-detail" id="orbital-detail">
-        <div class="orbital-detail-head">
-          <span class="orbital-detail-badge" id="detail-score">–</span>
-          <button type="button" class="orbital-detail-close" id="detail-close">✕</button>
+        <%# Les critères en orbite (générés depuis la base) %>
+        <% @analysis.criteria.each_with_index do |criterion, i| %>
+          <%
+            # Calcul de la couleur spécifique à ce critère
+            crit_score = criterion.score.to_f
+            if crit_score >= 7
+              crit_color = "#198754" # Vert
+            elsif crit_score >= 4
+              crit_color = "#ffc107" # Jaune/Orange
+            else
+              crit_color = "#dc3545" # Rouge
+            end
+          %>
+          <div class="orbital-node"
+               data-index="<%= i %>"
+               data-name="<%= criterion.name %>"
+               data-score="<%= criterion.score %>"
+               data-detail="<%= criterion.detail %>"
+               data-color="<%= crit_color %>">
+            <div class="orbital-node-circle">
+              <span class="orbital-node-score"><%= criterion.score %></span>
+            </div>
+            <div class="orbital-node-label"><%= criterion.name %></div>
+          </div>
+        <% end %>
+
+        <%# Carte de détail (cachée, s'affiche au clic) %>
+        <div class="orbital-detail" id="orbital-detail">
+          <div class="orbital-detail-head">
+            <span class="orbital-detail-badge" id="detail-score">–</span>
+            <button type="button" class="orbital-detail-close" id="detail-close">✕</button>
+          </div>
+          <h3 class="orbital-detail-title" id="detail-name">–</h3>
+          <p class="orbital-detail-text" id="detail-text">–</p>
         </div>
-        <h3 class="orbital-detail-title" id="detail-name">–</h3>
-        <p class="orbital-detail-text" id="detail-text">–</p>
       </div>
     </div>
 
@@ -109,21 +132,25 @@
           <p class="result-step">ENVIRONMENTAL IMPACT</p>
           <div class="impact-row"><span>CO₂</span><strong><%= @analysis.co2.round(2) %> kg</strong></div>
           <div class="impact-row"><span>Water</span><strong><%= @analysis.water.round(2) %></strong></div>
-          <div class="impact-row"><span>Impact score</span><strong><%= @analysis.global_score.round(0) %></strong></div>
+          <div class="impact-row"><span>Impact score - the less the best</span><strong><%= @analysis.global_score.round(0) %></strong></div>
           <p class="result-subtitle mt-2">Estimate based on size <%= @analysis.garment_size %>.</p>
-          <%= link_to "Ask a question →", analysis_discussion_path(@analysis), class: "btn_fibr_pill mt-3 d-block text-center text-decoration-none" %>
+          <div class="d-flex justify-content-center mt-3">
+            <%= link_to "ASK A QUESTION →", analysis_discussion_path(@analysis), class: "go-btn bg-dark text-white px-5 py-2 border-0 text-uppercase text-decoration-none" %>
+          </div>
         </div>
       <% else %>
         <div class="impact-card">
-          <p class="result-step">⬡ OPTIONNEL</p>
-          <h3 class="orbital-detail-title">Go further</h3>
+          <p class="result-step">⬡ OPTIONAL</p>
+          <h3 class="start-text" style="margin-top: 2px; font-size: 14px;">ESTIMATE ENVIRONMENTAL IMPACT</h3>
           <p class="result-subtitle">A few questions are enough to estimate the carbon and water footprint of this item.</p>
-          <%= button_to "Estimate environmental impact →", start_questionnary_analysis_path(@analysis), method: :post, class: "btn_fibr_pill btn_fibr_pill--green mt-3 w-100 border-0" %>
+          <div class="d-flex justify-content-center mt-3">
+            <%= button_to "GO FURTHER", start_questionnary_analysis_path(@analysis), method: :post, class: "go-btn bg-dark text-white px-5 py-2 border-0 text-uppercase" %>
+          </div>
         </div>
       <% end %>
 
       <div class="text-center mt-3">
-        <%= button_to "↻ New analysis", analyses_path, method: :post, class: "result-new-btn" %>
+        <%= button_to "↻ NEW ANALYSIS", analyses_path, method: :post, class: "result-new-btn text-uppercase" %>
       </div>
     </div>
 
@@ -132,7 +159,7 @@
       <div class="alert alert-danger">
         <h4 class="alert-heading">Analysis failed</h4>
         <p class="mb-3">An error occurred during processing. Please try again.</p>
-        <%= button_to "Try again", analyses_path, method: :post, class: "btn btn-outline-danger" %>
+        <%= button_to "TRY AGAIN", analyses_path, method: :post, class: "btn btn-outline-danger text-uppercase" %>
       </div>
     </div>
   <% end %>
@@ -174,15 +201,42 @@
 
     function ouvrirDetail(noeud) {
       document.getElementById("detail-name").textContent  = noeud.dataset.name
-      document.getElementById("detail-score").textContent = noeud.dataset.score + " / 10"
+
+      const badge = document.getElementById("detail-score")
+      badge.textContent = noeud.dataset.score + " / 10"
+
+      // Application de la couleur dynamique à la note (badge)
+      badge.style.backgroundColor = noeud.dataset.color
+      badge.style.borderColor = noeud.dataset.color
+      badge.style.color = "#ffffff" // Force le texte en blanc pour le contraste
+
       document.getElementById("detail-text").textContent  = noeud.dataset.detail
       detail.classList.add("is-open")
     }
 
     noeuds.forEach(function (noeud) {
       noeud.addEventListener("click", function () {
-        if (noeudActif) noeudActif.classList.remove("is-active")
+        if (noeudActif) {
+          noeudActif.classList.remove("is-active")
+          // Réinitialisation des styles du noeud précédent
+          const oldCircle = noeudActif.querySelector('.orbital-node-circle')
+          if (oldCircle) {
+            oldCircle.style.backgroundColor = ""
+            oldCircle.style.borderColor = ""
+            oldCircle.style.color = ""
+          }
+        }
+
         noeud.classList.add("is-active")
+
+        // Application de la couleur dynamique au cercle cliqué
+        const circle = noeud.querySelector('.orbital-node-circle')
+        if (circle) {
+          circle.style.backgroundColor = noeud.dataset.color
+          circle.style.borderColor = noeud.dataset.color
+          circle.style.color = "#ffffff"
+        }
+
         noeudActif = noeud
         enRotation = false
         ouvrirDetail(noeud)
@@ -191,8 +245,17 @@
 
     document.getElementById("detail-close").addEventListener("click", function () {
       detail.classList.remove("is-open")
-      if (noeudActif) noeudActif.classList.remove("is-active")
-      noeudActif = null
+      if (noeudActif) {
+        noeudActif.classList.remove("is-active")
+        // Réinitialisation des styles à la fermeture
+        const oldCircle = noeudActif.querySelector('.orbital-node-circle')
+        if (oldCircle) {
+          oldCircle.style.backgroundColor = ""
+          oldCircle.style.borderColor = ""
+          oldCircle.style.color = ""
+        }
+        noeudActif = null
+      }
       enRotation = true
     })
 
