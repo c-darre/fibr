@@ -17,7 +17,7 @@
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
-        <li class="list-group-item d-flex justify-content-between align-items-center border mb-2 shadow-sm rounded">
+        <li class="list-group-item d-flex justify-content-between align-items-center border rounded-4 mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
@@ -57,13 +57,13 @@
 
               <div class="score-circle">
                 <svg class="progress-ring" width="50" height="50">
-                  <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="4" fill="transparent" />
+                  <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="2" fill="transparent" />
 
                   <circle class="progress-ring-fill stroke-<%= couleur %>"
                           cx="25"
                           cy="25"
                           r="18"
-                          stroke-width="4"
+                          stroke-width="2"
                           fill="transparent"
                           stroke-dasharray="<%= total_circumference %>"
                           style="stroke-dashoffset: <%= stroke_offset %>px;" />
