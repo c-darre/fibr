@@ -1,6 +1,4 @@
 # app/jobs/analyze_garment_job.rb
-# Runs in the background after the user uploads photos.
-# Calls the AI (or a stub) and saves the result to the database.
 class AnalyzeGarmentJob < ApplicationJob
   queue_as :default
 
@@ -18,9 +16,8 @@ class AnalyzeGarmentJob < ApplicationJob
 
   private
 
-  # Returns a fake result instantly — set VISION_SERVICE=real in .env to use the real AI
   def stub_result
-    sleep 2 # simulates AI "thinking" so you can see the loading screen
+    sleep 2
     {
       "garment_type" => "T-shirt",
       "summary" => "Simulated analysis: good quality fabric, regular stitching, clean finishing.",
@@ -35,21 +32,29 @@ class AnalyzeGarmentJob < ApplicationJob
     }
   end
 
-  # Calls the AI with the uploaded photos and returns the parsed JSON hash
+  # Calls the AI with the uploaded photos and a STRUCTURED SCHEMA.
+  # The schema forces a fixed response shape → far more reliable than parsing free JSON.
   def ask_ai(analysis)
     return stub_result unless ENV["VISION_SERVICE"] == "real"
 
     images   = build_images(analysis)
     chat     = RubyLLM.chat(model: "claude-sonnet-4-6")
     chat.with_instructions(system_prompt)
+    chat.with_schema(GarmentAnalysisSchema)
     response = chat.ask(user_message, with: { images: images })
-    cleaned  = response.content.gsub(/```json|```/, "").strip
-    JSON.parse(cleaned)
+
+    # With a schema, response.content is already a structured Hash.
+    # We still handle the case where it might come back as a JSON string.
+    data = response.content
+    data = JSON.parse(data) if data.is_a?(String)
+
+    # The schema doesn't include garment_type, so we keep it from product_type if needed
+    data["garment_type"] ||= data.dig("ecobalyse_fields", "product_type")
+    data
   ensure
-    cleanup_tempfiles # always delete temp files, even if the AI call fails
+    cleanup_tempfiles
   end
 
-  # Collects temp file paths for all photos attached to this analysis
   def build_images(analysis)
     @tempfiles = []
     analysis.analysis_chat.messages.flat_map do |message|
@@ -57,15 +62,13 @@ class AnalyzeGarmentJob < ApplicationJob
     end
   end
 
-  # Downloads one photo to a temp file and returns its path.
-  # RubyLLM reads images from disk — it does not accept base64 data URIs.
   def photo_to_tempfile(photo)
     ext = File.extname(photo.filename.to_s)
     tmp = Tempfile.new(["fibr_photo", ext])
     tmp.binmode
     tmp.write(photo.download)
     tmp.rewind
-    @tempfiles << tmp # keep a reference so Ruby's GC doesn't delete it early
+    @tempfiles << tmp
     tmp.path
   end
 
@@ -73,7 +76,6 @@ class AnalyzeGarmentJob < ApplicationJob
     @tempfiles&.each(&:close!)
   end
 
-  # Saves the AI summary, overall score, and 5 criteria to the database
   def save_results(analysis, parsed)
     analysis.criteria.destroy_all
     analysis.analysis_chat.messages.create!(role: :assistant, content: parsed["summary"])
@@ -83,7 +85,6 @@ class AnalyzeGarmentJob < ApplicationJob
     analysis.update!(score: parsed["score"], garment_type: parsed["garment_type"], ecobalyse_fields: parsed["ecobalyse_fields"])
   end
 
-  # Tells the AI what role to play and how to format its response
   def system_prompt
     <<~PROMPT
       You are a demanding, rigorously honest textile quality expert AND a structured-data
@@ -98,21 +99,24 @@ class AnalyzeGarmentJob < ApplicationJob
       State ONLY what you can clearly and distinctly read or see. Never guess, assume, or
       default a value. A wrong value silently corrupts the environmental report computed
       downstream, so returning null is ALWAYS better than guessing.
-      - Composition: report ONLY exact percentages you can READ on a label (e.g. 80% polyester,
-        20% cotton). If there is no label, or the text is blurry, too small, hidden, or
-        unreadable for ANY reason, set composition to null. Never default to a common material
-        such as "100% polyester".
+      - Composition: report ONLY exact percentages you can READ on a label. If there is no
+        label, or the text is blurry, too small, hidden, or unreadable for ANY reason, set
+        composition to null. Never default to a common material such as "100% polyester".
       - Country ("Made in ..."): read it or set country to null.
       - Care instructions and brand: read them or treat them as absent.
 
+      ===================== MULTI-LAYER LABELS (IMPORTANT) =====================
+      Many garments (jackets, coats, padded items) list SEVERAL layers, e.g.:
+        OUTER SHELL: 100% cotton / INNER SHELL: 100% polyamide / PADDING: 100% polyester.
+      In that case, use ONLY the OUTER SHELL (outer fabric) composition for the composition
+      field. Ignore lining and padding for the composition. The label may repeat the same
+      info in several languages (EN/FR/DE/IT) — read the ENGLISH version. This rule makes the
+      extraction deterministic: always pick the outer shell.
+
       ===================== PHOTO QUALITY CHECK =====================
       Begin the summary by assessing photo usability. If the label or a garment photo is
-      blurry, missing, or unreadable, say so and tell the user exactly which photo to retake
-      (e.g. "The label is too blurry to read the composition — please retake a sharp,
-      well-lit photo of the label."). When a photo is unusable, score the affected criteria
-      conservatively rather than inventing details.
-
-      You must perform TWO tasks and fill EVERY field of the response structure.
+      blurry, missing, or unreadable, say so and tell the user exactly which photo to retake.
+      When a photo is unusable, score the affected criteria conservatively rather than inventing.
 
       ===================== TASK 1 — QUALITY ANALYSIS =====================
       Use the FULL 0-10 scale, strictly:
@@ -120,52 +124,22 @@ class AnalyzeGarmentJob < ApplicationJob
       An ordinary garment deserves a 5, not a 7. Do not be complacent.
       - summary: photo usability first (with retake advice if needed), then a short honest verdict.
       - score: overall integer 0-10.
-      - criteria: EXACTLY these 5, in this order, with these exact names — each with a short
-        "detail" and an integer "score" 0-10:
-        1. "Material Quality" — fabric quality and composition (only what you read).
-        2. "Stitching & Seams" — regularity and solidity of stitching/seams.
-        3. "Finishing" — hems, edges, label, finishing details.
-        4. "Durability" — lifespan, justified ONLY by composition/care you actually read;
-           if composition is unreadable, say durability cannot be reliably assessed.
-        5. "Overall Construction" — general solidity and assembly quality.
+      - criteria: EXACTLY these 5, in this order, with these exact names:
+        Material Quality, Stitching & Seams, Finishing, Durability, Overall Construction.
 
       ===================== TASK 2 — STRUCTURED EXTRACTION FOR ECOBALYSE =====================
-      Fill ecobalyse_fields using ONLY what is visible. Do NOT estimate weight or size —
-      they are handled separately and must never appear here.
-      - product_type: the closest of: tshirt, chemise, jean, pantalon, pull, jupe, manteau,
-        calecon, chaussettes, maillot-de-bain, slip. Best guess (the user will confirm it).
-        null ONLY if none fits.
-      - composition: the fibers read on the label, each as { "fiber": english name, "percentage":
-        integer }. Allowed fiber names: cotton, polyester, wool, elastane, polyamide, nylon,
-        viscose, linen, hemp, acrylic, jute. Percentages must sum to 100. Set the WHOLE field
-        to null if composition is not clearly readable.
-      - country: ISO 3166-1 alpha-2 code from the "Made in" label (France→FR, China→CN,
-        Bangladesh→BD, Portugal→PT, Turkey→TR). null if not visible.
+      Fill ecobalyse_fields using ONLY what is visible. Do NOT estimate weight or size.
+      - product_type: closest of the allowed types. Best guess (the user will confirm). null only if none fits.
+      - composition: outer shell fibers (see multi-layer rule), each {fiber, percentage}, summing to 100.
+        Allowed fibers: cotton, polyester, wool, elastane, polyamide, nylon, viscose, linen, hemp, acrylic, jute.
+        null if not clearly readable.
+      - country: ISO 3166-1 alpha-2 from "Made in". null if not visible.
+      - construction: knitted or woven, null if unsure.
 
-      ===================== OUTPUT — STRICT JSON ONLY =====================
-      Respond in English, as a strict JSON object with this exact shape, nothing outside it:
-      {
-        "garment_type": "the type of garment (e.g. T-shirt, Jacket, Jeans, Dress…)",
-        "summary": "photo usability assessment first (retake advice if needed), then a short honest verdict",
-        "score": <integer from 0 to 10>,
-        "criteria": [
-          { "name": "Material Quality", "detail": "...", "score": <0-10> },
-          { "name": "Stitching & Seams", "detail": "...", "score": <0-10> },
-          { "name": "Finishing", "detail": "...", "score": <0-10> },
-          { "name": "Durability", "detail": "...", "score": <0-10> },
-          { "name": "Overall Construction", "detail": "...", "score": <0-10> }
-        ],
-        "ecobalyse_fields": {
-          "product_type": "tshirt | ... | null",
-          "composition": [ { "fiber": "cotton", "percentage": 80 } ] ,
-          "country": "FR | null"
-        }
-      }
-      Provide exactly these 5 criteria. Do not include any text outside the JSON.
+      Respond strictly according to the provided schema. Reply in English.
     PROMPT
   end
 
-  # The message sent to the AI alongside the photos
   def user_message
     "Here are the photos of one garment (clothing label, front, and back). " \
       "Identify the label and read all useful information on it, then analyze " \

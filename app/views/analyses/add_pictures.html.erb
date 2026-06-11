@@ -20,16 +20,14 @@
              class="position-absolute top-0 start-0 w-100 h-100"
              style="object-fit: cover;"></video>
 
-      <%# Overlay flash : blanc, invisible par défaut, s'anime au clic %>
+      <%# Overlay flash %>
       <div id="flash-overlay"
            class="position-absolute top-0 start-0 w-100 h-100"
            style="background: white; opacity: 0; pointer-events: none; z-index: 999;"></div>
 
-      <%# Bouton et texte flottent par-dessus la vidéo, en bas %>
       <div class="position-absolute bottom-0 w-100 text-center pb-4"
            style="background: linear-gradient(transparent, rgba(0,0,0,0.5));">
 
-        <%# Bouton caméra + bouton flip + bouton flash côte à côte %>
         <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
 
           <button type="button" id="btn-flip"
@@ -46,12 +44,10 @@
                   style="width: 72px; height: 72px; border-radius: 50%;
                          background: #f0ece4; border: 3px solid white;
                          box-shadow: 0 0 0 8px rgba(255,255,255,0.25); cursor: pointer;">
-            <%# Icône caméra (par défaut) %>
             <svg id="icon-camera" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="#1A1A1A" stroke-width="1.5" style="pointer-events:none;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
             </svg>
-            <%# Icône flèche (cachée tant que pas fini) %>
             <svg id="icon-arrow" class="d-none" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="#1A1A1A" stroke-width="2" style="pointer-events:none;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
@@ -124,8 +120,8 @@
 
 <script>
   let step = 1
-  let facingMode = "environment" // "environment" = arrière, "user" = avant
-  let flashActif = false         // Gestion globale de l'état du flash
+  let facingMode = "environment"
+  let flashActif = false
 
   function demarrerCamera() {
     const video = document.getElementById("camera-feed")
@@ -133,7 +129,6 @@
     navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
       .then(function(stream) {
         video.srcObject = stream
-        // Réappliquer le flash si l'utilisateur l'avait activé avant de switch de caméra
         appliquerFlashMateriel()
       })
       .catch(function(erreur) {
@@ -141,33 +136,20 @@
       })
   }
 
-  // -----------------------------------------------------------------
-  // RETOURNER LA CAMÉRA
-  // -----------------------------------------------------------------
   function retournerCamera() {
     const video = document.getElementById("camera-feed")
     if (!video.srcObject) return
-
     video.srcObject.getTracks().forEach(function(track) { track.stop() })
     video.srcObject = null
-
     facingMode = (facingMode === "environment") ? "user" : "environment"
-
-    // On coupe proprement l'état du flash pour éviter les bugs sur la caméra avant
     flashActif = false
     majBoutonFlashUI()
-
     demarrerCamera()
   }
 
   document.addEventListener("DOMContentLoaded", demarrerCamera)
   document.addEventListener("turbo:load", demarrerCamera)
 
-  // -----------------------------------------------------------------
-  // ÉVÉNEMENTS ÉCOUTEURS
-  // -----------------------------------------------------------------
-  // Fusion : On utilise boutonPrincipal (logique design/étapes)
-  // au lieu de capturerPhoto directement
   document.getElementById("btn-camera").addEventListener("click", boutonPrincipal)
   document.getElementById("btn-flip").addEventListener("click", retournerCamera)
   document.getElementById("btn-flash").addEventListener("click", basculerFlash)
@@ -180,11 +162,10 @@
   document.getElementById("retake-front").addEventListener("click", function() { reprendrePhoto("front") })
   document.getElementById("retake-back").addEventListener("click",  function() { reprendrePhoto("back") })
 
-  document.getElementById("upload-tag").addEventListener("change",   tagPris)
+  document.getElementById("upload-tag").addEventListener("change",   uploadTag)
   document.getElementById("upload-front").addEventListener("change", devantPris)
   document.getElementById("upload-back").addEventListener("change",  derrierePris)
 
-  // Bouton central : capture si étapes restantes, sinon soumet le formulaire
   function boutonPrincipal() {
     if (step >= 4) {
       document.getElementById("submit-btn").click()
@@ -193,9 +174,6 @@
     }
   }
 
-  // -----------------------------------------------------------------
-  // GESTION DU FLASH (MATÉRIEL + VISUEL)
-  // -----------------------------------------------------------------
   function basculerFlash() {
     flashActif = !flashActif
     majBoutonFlashUI()
@@ -222,11 +200,9 @@
       const track = video.srcObject.getVideoTracks()[0]
       if (track && typeof track.getCapabilities === 'function') {
         const capabilities = track.getCapabilities()
-        // Si le navigateur et le téléphone supportent la vraie LED (torch)
         if (capabilities.torch) {
-          track.applyConstraints({
-            advanced: [{ torch: flashActif }]
-          }).catch(err => console.log("L'accès à la LED a échoué : ", err))
+          track.applyConstraints({ advanced: [{ torch: flashActif }] })
+            .catch(err => console.log("L'accès à la LED a échoué : ", err))
         }
       }
     }
@@ -234,30 +210,22 @@
 
   function declencherFlashVisuel() {
     if (!flashActif) return
-
     const overlay = document.getElementById("flash-overlay")
-    overlay.style.transition = "none"                      // allumage instantané
+    overlay.style.transition = "none"
     overlay.style.opacity = "1"
     setTimeout(function() {
-      overlay.style.transition = "opacity 0.15s ease-out" // fondu retour
+      overlay.style.transition = "opacity 0.15s ease-out"
       overlay.style.opacity = "0"
     }, 150)
   }
 
-  // -----------------------------------------------------------------
-  // CAPTURER UNE PHOTO DU FLUX VIDÉO
-  // -----------------------------------------------------------------
   function capturerPhoto() {
     const video  = document.getElementById("camera-feed")
     const canvas = document.getElementById("canvas")
-
     canvas.width  = video.videoWidth
     canvas.height = video.videoHeight
 
-    // Écran blanc synchrone (Ajout de la branche main)
     declencherFlashVisuel()
-
-    // Prise instantanée du screen pendant le flash
     canvas.getContext("2d").drawImage(video, 0, 0)
 
     canvas.toBlob(function(blob) {
@@ -265,10 +233,9 @@
       const transfert = new DataTransfer()
       transfert.items.add(fichier)
 
-      // Logique d'attribution des étapes (Branche de refonte design)
       if (step === 1) {
         document.getElementById("input-tag").files = transfert.files
-        tagPris()
+        verifierEtiquette(blob)   // ← vérification de lisibilité avant de valider
       } else if (step === 2) {
         document.getElementById("input-front").files = transfert.files
         devantPris()
@@ -277,7 +244,6 @@
         derrierePris()
       }
 
-      // Auto-extinction de la LED après la capture pour le confort de l'utilisateur
       if (flashActif) {
         basculerFlash()
       }
@@ -285,8 +251,57 @@
   }
 
   // -----------------------------------------------------------------
-  // MISE À JOUR DES STATUTS ET UI
+  // VÉRIFICATION DE LISIBILITÉ DE L'ÉTIQUETTE
   // -----------------------------------------------------------------
+  function verifierEtiquette(blob) {
+    document.getElementById("scan-text").textContent = "Checking label…"
+
+    const formData = new FormData()
+    formData.append("photo", blob, "label.jpg")
+
+    fetch("<%= check_label_analysis_path(@analysis) %>", {
+      method: "POST",
+      headers: { "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content },
+      body: formData
+    })
+      .then(function(r) { return r.json() })
+      .then(function(data) {
+        tagPris()   // l'étape Tag est validée dans tous les cas
+        if (data.readable === false) {
+          marquerEtiquetteFloue()
+        }
+      })
+      .catch(function() {
+        tagPris()   // en cas d'erreur réseau, on ne bloque pas
+      })
+  }
+
+  // Quand on uploade une étiquette depuis la galerie, on la vérifie aussi
+  function uploadTag() {
+    const input = document.getElementById("upload-tag")
+    if (input.files.length === 0) return
+
+    // Le fichier uploadé est aussi attaché à l'input caché input-tag (pour l'envoi du form)
+    const transfert = new DataTransfer()
+    transfert.items.add(input.files[0])
+    document.getElementById("input-tag").files = transfert.files
+
+    // On envoie le fichier à la vérification (un fichier est un blob, donc ça marche)
+    verifierEtiquette(input.files[0])
+  }
+
+  function marquerEtiquetteFloue() {
+    const carte = document.getElementById("card-tag")
+    carte.classList.add("is-warning")
+    if (!document.getElementById("tag-warning")) {
+      const avert = document.createElement("div")
+      avert.id = "tag-warning"
+      avert.className = "capture-warning"
+      avert.textContent = "Label hard to read — retake for a better result"
+      carte.querySelector(".capture-label").appendChild(avert)
+    }
+  }
+
   function tagPris()      { finirEtape("card-tag") }
   function devantPris()   { finirEtape("card-front") }
   function derrierePris() { finirEtape("card-back") }
@@ -299,7 +314,6 @@
     majEtape()
   }
 
-  // Si l'étape est faite → on reprend la photo. Sinon → galerie.
   function actionBouton(nom) {
     const carte = document.getElementById("card-" + nom)
     if (carte.classList.contains("is-done")) {
@@ -309,8 +323,6 @@
     }
   }
 
-  // Réinitialise une étape : vide l'input, repasse la carte en "active"
-  // Reprend UNIQUEMENT la photo cliquée, sans toucher aux autres
   function reprendrePhoto(nom) {
     document.getElementById("input-" + nom).value = ""
     document.getElementById("upload-" + nom).value = ""
@@ -320,10 +332,16 @@
     carte.classList.add("is-active")
     carte.querySelector(".capture-add").textContent = "+"
 
+    // Nettoie l'avertissement "étiquette floue" si on reprend le Tag
+    if (nom === "tag") {
+      carte.classList.remove("is-warning")
+      const oldWarning = document.getElementById("tag-warning")
+      if (oldWarning) oldWarning.remove()
+    }
+
     majEtape()
   }
 
-  // Regarde quelles cartes sont faites et met à jour step + le bouton final
   function majEtape() {
     const ordre = ["tag", "front", "back"]
 
@@ -351,7 +369,7 @@
     if (tousFaits) {
       document.getElementById("scan-text").textContent = "ALL DONE!"
     } else {
-      document.getElementById("scan-text").textContent = "SCAN " + ordre[step - 1].toUpperCase() 
+      document.getElementById("scan-text").textContent = "SCAN " + ordre[step - 1].toUpperCase()
     }
   }
 
