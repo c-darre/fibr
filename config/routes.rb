@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     get :add_pictures, on: :member
     get :questionnary, on: :member
     post :start_questionnary, on: :member
+    post :check_label,        on: :member
     resources :chats, only: [] do
       resources :messages, only: [:create]
     end

@@ -1,8 +1,7 @@
-<div class="quiz-page d-flex flex-column"
-     data-controller="discussion-polling"
-     data-discussion-polling-waiting-value="<%= @messages.last&.role == 'user' %>">
+<%= turbo_stream_from "chat_#{@chat.id}" %>
 
-  <%# En-tête %>
+<div class="quiz-page d-flex flex-column">
+
   <div class="quiz-header">
     <div class="quiz-eyebrow">
       <span class="quiz-status-dot"></span> ASSISTANT
@@ -15,28 +14,10 @@
     </div>
   </div>
 
-  <%# Fil de messages %>
-  <div class="quiz-messages flex-grow-1">
-    <% @messages.each do |message| %>
-      <div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
-        <div class="quiz-bubble">
-          <% if message.role == "assistant" %>
-            <%= markdown(message.content) %>
-          <% else %>
-            <%= message.content %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-
-    <% if @messages.last&.role == "user" %>
-      <div class="quiz-msg quiz-msg--assistant">
-        <div class="quiz-bubble quiz-typing">Expert is typing…</div>
-      </div>
-    <% end %>
+  <div id="messages-container" class="quiz-messages flex-grow-1">
+    <%= render @messages %>
   </div>
 
-  <%# Barre de saisie %>
   <div class="quiz-input-bar">
     <%= form_with model: @message, url: analysis_chat_messages_path(@analysis, @chat) do |f| %>
       <div class="quiz-input-row">
@@ -51,3 +32,21 @@
     <% end %>
   </div>
 </div>
+
+<script>
+  // Scroll auto en bas à chaque nouveau message (au chargement + à chaque ajout Turbo Stream)
+  function scrollChatEnBas() {
+    const c = document.getElementById("messages-container")
+    if (c) c.scrollTop = c.scrollHeight
+  }
+  document.addEventListener("turbo:load", scrollChatEnBas)
+  // Quand Turbo Stream ajoute un message, on re-scroll
+  document.addEventListener("turbo:before-stream-render", function () {
+    setTimeout(scrollChatEnBas, 50)
+  })
+  // Vide le champ après envoi (puisqu'on ne recharge plus la page)
+  document.addEventListener("turbo:submit-end", function () {
+    const champ = document.querySelector(".quiz-text-input")
+    if (champ) champ.value = ""
+  })
+</script>

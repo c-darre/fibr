@@ -1,6 +1,10 @@
 <div class="quiz-msg <%= message.role == "assistant" ? "quiz-msg--assistant" : "quiz-msg--user" %>">
-  <div class="quiz-bubble">
-    <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">See the result</a>" } %>
-    <%= sanitize(linked, tags: %w[a], attributes: %w[href]) %>
+  <div class="quiz-bubble markdown-body">
+    <% if message.role == "assistant" && message.chat.kind == "discussion" %>
+      <%= markdown(message.content) %>
+    <% else %>
+      <% linked = message.content.gsub(%r{/analyses/\d+}) { |path| "<a href=\"#{path}\">See your results</a>" } %>
+      <%= sanitize(linked, tags: %w[a], attributes: %w[href]) %>
+    <% end %>
   </div>
 </div>

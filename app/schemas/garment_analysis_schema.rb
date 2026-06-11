@@ -1,5 +1,6 @@
+require "ruby_llm/schema"
 class GarmentAnalysisSchema < RubyLLM::Schema
-  # --- Task 1: quality (same shape as current JSON → save_results nearly unchanged) ---
+  # --- Task 1: quality ---
   string  :summary, description: "Photo usability first, then a short honest verdict"
   integer :score,   description: "Overall quality score, integer 0-10"
 
@@ -18,7 +19,7 @@ class GarmentAnalysisSchema < RubyLLM::Schema
       null
     end
 
-    any_of :composition, description: "Fibers read on the label; null if the composition is not clearly readable" do
+    any_of :composition, description: "Fibers read on the label, each {fiber, percentage}, percentages MUST sum to 100. IMPORTANT: if the label lists several layers (e.g. OUTER SHELL / INNER SHELL / LINING / PADDING), use ONLY the OUTER SHELL composition. If no layer distinction, use the main composition as-is. Set to null if the composition cannot be clearly read." do
       array do
         object do
           string  :fiber,      description: "English fiber name (cotton, polyester, wool, elastane, polyamide, viscose, linen...)"

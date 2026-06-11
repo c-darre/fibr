@@ -6,6 +6,9 @@ class DiscussionJob < ApplicationJob
     analysis = chat.analysis
     reply    = ask_ai(chat, analysis)
     chat.messages.create!(role: :assistant, content: reply)
+
+    # Retire la bulle "Expert is typing…"
+    Turbo::StreamsChannel.broadcast_remove_to("chat_#{chat_id}", target: "typing-indicator")
   rescue ActiveRecord::RecordNotFound => e
     Rails.logger.error "DiscussionJob: Chat ##{chat_id} not found — #{e.message}"
   rescue StandardError => e
