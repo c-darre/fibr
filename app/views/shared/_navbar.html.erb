@@ -1,6 +1,6 @@
 <%# _navbar.html.erb %>
 
-<nav class="navbar bg-white" style="border-top: 6px solid #f9e9d9;">
+<nav class="navbar bg-white">
   <div class="container d-flex align-items-center justify-content-between">
 
     <button class="navbar-toggler border-0 px-0"
@@ -10,9 +10,9 @@
       <i class="fa-solid fa-bars custom-burger-icon" style="color: #000000 !important;"></i>
     </button>
 
-    <%= link_to "FIB___R",
-      root_path,
-      class: "navbar-brand fw-bold mb-0 text-dark" %>
+    <%= link_to root_path, class: "navbar-brand mb-0" do %>
+      <%= image_tag "Logo_black.svg", alt: "FIB__R Logo", style: "height: 12px; width: auto;" %>
+    <% end %>
   </div>
 </nav>
 
