@@ -72,11 +72,19 @@ class QuestionnaryJob < ApplicationJob
 
     chat.messages.create!(
       role: :assistant,
-      content: "Perfect, size #{size} noted! To see your results, click here: #{Rails.application.routes.url_helpers.analysis_path(analysis)}"
+      content: "Perfect, size #{size} noted! Click the button below to see your environmental impact results."
+    )
+
+    # Désactive la zone de saisie : on la remplace par un bouton vers les résultats
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "chat_#{chat.id}",
+      target: "quiz-input-zone",
+      partial: "analyses/quiz_done",
+      locals: { analysis: analysis }
     )
   end
 
-  private 
+  private
 
   def letter_size(size)
     return size unless size.match?(/\A\d+\z/)
