@@ -86,12 +86,14 @@
   margin-bottom: 0.6rem;
 }
 .quiz-size {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  border-radius: 50px;
   border: 1px solid #d6ccbb;
   background: #f3ede2;
   font-family: "Work Sans", sans-serif;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #6b6358;
   cursor: pointer;
