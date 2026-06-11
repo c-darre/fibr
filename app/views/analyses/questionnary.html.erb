@@ -1,5 +1,17 @@
 <%= turbo_stream_from "chat_#{@chat.id}" %>
 
+<style>
+  /* 1. Empêche la page globale de scroller (très important pour une app mobile-first) */
+  body {
+    overflow: hidden !important;
+  }
+
+  /* 2. Force le conteneur principal à faire la hauteur de l'écran moins la navbar (env. 70px) */
+  .quiz-page {
+    height: calc(100dvh - 70px); /* 100dvh est parfait pour s'adapter aux barres de recherche Safari/Chrome sur mobile */
+  }
+</style>
+
 <div class="quiz-page d-flex flex-column">
 
   <%# En-tête %>
@@ -7,12 +19,14 @@
     <h1 class="quiz-title">Estimate the impact</h1>
   </div>
 
-  <%# Fil de messages %>
-  <div id="messages-container" class="quiz-messages flex-grow-1">
+  <%# Fil de messages (avec ajout de overflow-y: auto pour le scroll interne) %>
+  <div id="messages-container"
+       class="quiz-messages flex-grow-1"
+       style="background-image: url('<%= asset_path("question_bg.svg") %>'); background-repeat: no-repeat; background-position: center; background-size: 150px; padding: 1rem; overflow-y: auto;">
     <%= render @chat.messages.order(:created_at) %>
   </div>
 
-  <%# Barre de saisie OU bouton résultats (selon que l'impact est calculé) %>
+  <%# Barre de saisie OU bouton résultats %>
   <div id="quiz-input-zone">
     <% if @analysis.co2.present? %>
       <div class="quiz-input-bar text-center">
@@ -35,7 +49,8 @@
           <div class="quiz-input-row">
             <input type="text" name="message[content]" id="quiz-input"
                    placeholder="Your answer (e.g. size M)"
-                   class="quiz-text-input" autocomplete="off">
+                   class="quiz-text-input" autocomplete="off"
+                   onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.form.requestSubmit(); }">
             <button type="submit" class="quiz-send" aria-label="Send">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.27 3.27 21 12 3.27 20.73 6 12Zm0 0h6"/></svg>
             </button>
@@ -52,5 +67,15 @@
       document.getElementById("quiz-input").value = btn.dataset.size
       document.getElementById("quiz-form").requestSubmit()
     })
+  })
+
+  function scrollChatEnBas() {
+    const c = document.getElementById("messages-container")
+    // Le scroll se fait maintenant UNIQUEMENT dans ce conteneur
+    if (c) c.scrollTop = c.scrollHeight
+  }
+  document.addEventListener("turbo:load", scrollChatEnBas)
+  document.addEventListener("turbo:before-stream-render", function () {
+    setTimeout(scrollChatEnBas, 50)
   })
 </script>

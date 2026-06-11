@@ -1,5 +1,17 @@
 <%= turbo_stream_from "chat_#{@chat.id}" %>
 
+<style>
+  /* Empêche la page globale de scroller */
+  body {
+    overflow: hidden !important;
+  }
+
+  /* Force le conteneur principal à faire la hauteur de l'écran moins la navbar */
+  .quiz-page {
+    height: calc(100dvh - 70px);
+  }
+</style>
+
 <div class="quiz-page d-flex flex-column">
 
   <div class="quiz-header">
@@ -11,17 +23,16 @@
     <h1 class="quiz-title mb-0" style="margin-top: -30px;"><br>Expert discussion</h1>
   </div>
 
-  <%# ── C'est ici que la magie opère en inline style ── %>
+  <%# ── Ajout de overflow-y: auto à la fin du style inline ── %>
   <div id="messages-container"
        class="quiz-messages flex-grow-1"
-       style="background-image: url('<%= asset_path("chat_bg.svg") %>'); background-repeat: no-repeat; background-position: center; background-size: 150px; padding: 1rem;">
+       style="background-image: url('<%= asset_path("chat_bg.svg") %>'); background-repeat: no-repeat; background-position: center; background-size: 150px; padding: 1rem; overflow-y: auto;">
     <%= render @messages %>
   </div>
 
   <div class="quiz-input-bar">
     <%= form_with model: @message, url: analysis_chat_messages_path(@analysis, @chat) do |f| %>
       <div class="quiz-input-row">
-        <%# ── Ajout de l'événement onkeydown juste ici 👇 ── %>
         <%= f.text_area :content,
               placeholder: "Ask your question…",
               class: "quiz-text-input",
