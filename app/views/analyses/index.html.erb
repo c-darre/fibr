@@ -15,6 +15,7 @@
                     class: "btn btn-primary rounded-end-pill" %>
       </div>
     <% end %>
+
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
@@ -47,38 +48,45 @@
               <% elsif average_score < 7 %>
                 <% couleur = "#ffc107" %> <%# Yellow %>
               <% else %>
-                <% couleur = "#198754" %> <%# Green (Fixed the stray parenthesis!) %>
+                <% couleur = "#198754" %> <%# Green %>
               <% end %>
 
               <%
                 score_percentage = (average_score * 10).to_i
-                total_circumference = 113.1
+                # UPDATED MATH FOR 60x60px RING: Radius 22, Circumference = 2 * PI * 22 = 138.23
+                total_circumference = 138.23
                 stroke_offset = total_circumference - ((score_percentage / 100.0) * total_circumference)
               %>
 
-              <div class="score-circle">
-                <svg class="progress-ring" width="50" height="50">
-                  <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="2" fill="transparent" />
+              <%# UPDATED: Added explicit relative layout to perfectly position the centered text block %>
+              <div class="score-circle position-relative d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
 
-                  <%# CHANGED: Swapped 'class="stroke-<%= couleur %>"' to 'stroke="<%= couleur %>"' %>
+                <%# FIXED: Added transform: rotate(-90deg) and adjusted canvas window sizes to 60px %>
+                <svg class="progress-ring" width="60" height="60" style="transform: rotate(-90deg); overflow: visible;">
+                  <circle class="progress-ring-track" cx="30" cy="30" r="22" stroke="#e9ecef" stroke-width="2.5" fill="transparent" />
+
                   <circle class="progress-ring-fill"
-                          cx="25"
-                          cy="25"
-                          r="18"
+                          cx="30"
+                          cy="30"
+                          r="22"
                           stroke="<%= couleur %>"
-                          stroke-width="2"
+                          stroke-width="2.5"
                           fill="transparent"
                           stroke-dasharray="<%= total_circumference %>"
                           style="stroke-dashoffset: <%= stroke_offset %>px;" />
                 </svg>
 
-                <div class="progress-inner-text">
+                <%# UPDATED: Positioned text firmly in the center layout and locked down font scale styling %>
+                <div class="progress-inner-text position-absolute fw-bold text-dark" style="font-size: 14px; font-weight: 700 !important; line-height: 1; letter-spacing: -0.2px;">
                   <%= average_score %>
                 </div>
               </div>
 
             <% else %>
-              <span class="text-muted">-</span>
+              <%# UPDATED: Scaled the empty state frame box bounds to 60px to maintain consistent layout flow %>
+              <div class="d-flex align-items-center justify-content-center text-muted me-2" style="width: 60px; height: 60px; font-size: 16px; font-weight: 700;">
+                -
+              </div>
             <% end %>
           </div>
 

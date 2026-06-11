@@ -99,29 +99,34 @@
 
                     <%
                       score_percentage = (average_score * 10).to_i
-                      navbar_circumference = 87.96
+                      # CALCULATION FOR 60x60px RING: Radius 22, Circumference = 2 * PI * 22 = 138.23
+                      navbar_circumference = 138.23
                       navbar_stroke_offset = navbar_circumference - ((score_percentage / 100.0) * navbar_circumference)
                     %>
 
-                    <div class="score-circle position-relative d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                      <svg class="progress-ring" width="36" height="36" style="transform: rotate(-90deg);&quot;">
-                        <circle class="progress-ring-track" cx="18" cy="18" r="14" stroke="#e9ecef" stroke-width="2.5" fill="transparent" />
+                    <%# UPDATED: Raised wrapper dimensions to 60px %>
+                    <div class="score-circle position-relative d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                      <svg class="progress-ring" width="60" height="60" style="transform: rotate(-90deg); overflow: visible;">
+                        <circle class="progress-ring-track" cx="30" cy="30" r="22" stroke="#e9ecef" stroke-width="2.5" fill="transparent" />
                         <circle class="progress-ring-fill"
-                                cx="18"
-                                cy="18"
-                                r="14"
+                                cx="30"
+                                cy="30"
+                                r="22"
                                 stroke="<%= couleur %>"
                                 stroke-width="2.5"
                                 fill="transparent"
                                 stroke-dasharray="<%= navbar_circumference %>"
                                 style="stroke-dashoffset: <%= navbar_stroke_offset %>px;" />
                       </svg>
-                      <div class="position-absolute fw-bold text-dark" style="font-size: 9px; line-height: 1; letter-spacing: -0.5px;">
+                      <%# UPDATED: Linked directly to the history inner text class & explicitly defined identical font configurations %>
+                      <div class="progress-inner-text position-absolute fw-bold text-dark"
+                           style="font-size: 14px; font-weight: 700 !important; line-height: 1; letter-spacing: -0.2px;">
                         <%= average_score %>
                       </div>
                     </div>
                   <% else %>
-                    <div class="d-flex align-items-center justify-content-center text-muted me-2" style="width: 36px; height: 36px;">
+                    <%# UPDATED: Balanced hyphen alignment block dimensions to 60px %>
+                    <div class="d-flex align-items-center justify-content-center text-muted me-2" style="width: 60px; height: 60px; font-size: 16px; font-weight: 700;">
                       -
                     </div>
                   <% end %>
