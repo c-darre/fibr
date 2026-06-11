@@ -4,6 +4,7 @@
   height: 100dvh;
   overflow: hidden;
   background: linear-gradient(to bottom, $beige-light, $beige-warm);
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }
 
 // --- En-tête ---
