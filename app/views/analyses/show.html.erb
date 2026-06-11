@@ -67,11 +67,8 @@
     <div class="result-header">
       <div class="d-flex justify-content-between align-items-start">
         <div>
-          <h1 class="start-text text-uppercase" style="margin: 0px; font-size: 24px; margin-bottom: -22px;">Analysis results</h1>
+          <h1 class="start-text text-uppercase" style="margin: 0px; font-size: 24px; margin-bottom: -22px;">Your results</h1>
         </div>
-        <% if @analysis.garment_type.present? %>
-          <span class="result-tag"><%= @analysis.garment_type %><%= " · #{@analysis.garment_size}" if @analysis.garment_size.present? %></span>
-        <% end %>
       </div>
     </div>
 
@@ -106,9 +103,23 @@
                data-score="<%= criterion.score %>"
                data-detail="<%= criterion.detail %>"
                data-color="<%= crit_color %>">
-            <div class="orbital-node-circle">
-              <span class="orbital-node-score"><%= criterion.score %></span>
-            </div>
+            <%
+              r = 22
+              circ = (2 * Math::PI * r).round(2)
+              arc  = (criterion.score.to_f / 10.0 * circ).round(2)
+            %>
+            <svg class="orbital-node-circle" width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="<%= r %>" fill="white" stroke="#e8e2d9" stroke-width="1.2"/>
+              <circle cx="28" cy="28" r="<%= r %>" fill="none"
+                      stroke="<%= crit_color %>" stroke-width="1.2"
+                      stroke-dasharray="<%= arc %> <%= circ %>"
+                      stroke-linecap="round"
+                      transform="rotate(-90 28 28)"/>
+              <text x="28" y="33" text-anchor="middle"
+                    font-family="Georgia, serif" font-weight="600" font-size="13" fill="#1a1a1a">
+                <%= criterion.score %>
+              </text>
+            </svg>
             <div class="orbital-node-label"><%= criterion.name %></div>
           </div>
         <% end %>
@@ -218,24 +229,9 @@
       noeud.addEventListener("click", function () {
         if (noeudActif) {
           noeudActif.classList.remove("is-active")
-          // Réinitialisation des styles du noeud précédent
-          const oldCircle = noeudActif.querySelector('.orbital-node-circle')
-          if (oldCircle) {
-            oldCircle.style.backgroundColor = ""
-            oldCircle.style.borderColor = ""
-            oldCircle.style.color = ""
-          }
         }
 
         noeud.classList.add("is-active")
-
-        // Application de la couleur dynamique au cercle cliqué
-        const circle = noeud.querySelector('.orbital-node-circle')
-        if (circle) {
-          circle.style.backgroundColor = noeud.dataset.color
-          circle.style.borderColor = noeud.dataset.color
-          circle.style.color = "#ffffff"
-        }
 
         noeudActif = noeud
         enRotation = false
@@ -247,13 +243,6 @@
       detail.classList.remove("is-open")
       if (noeudActif) {
         noeudActif.classList.remove("is-active")
-        // Réinitialisation des styles à la fermeture
-        const oldCircle = noeudActif.querySelector('.orbital-node-circle')
-        if (oldCircle) {
-          oldCircle.style.backgroundColor = ""
-          oldCircle.style.borderColor = ""
-          oldCircle.style.color = ""
-        }
         noeudActif = null
       }
       enRotation = true

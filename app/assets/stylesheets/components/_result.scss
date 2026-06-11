@@ -116,18 +116,7 @@
 .orbital-node-circle {
   width: 56px; height: 56px;
   margin: 0 auto;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.orbital-node-score {
-  font-family: Georgia, serif;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #1a1a1a;
+  display: block;
 }
 .orbital-node-label {
   font-family: "Work Sans", sans-serif;
@@ -135,16 +124,14 @@
   letter-spacing: 0.5px;
   color: #6b6358;
   margin-top: 0.3rem;
-  width: 90px;              // plus large que le cercle
-  margin-left: -13px;       // recentre (le node fait 64px, on déborde de 13px de chaque côté)
+  width: 90px;
+  margin-left: -13px;
   line-height: 1.15;
-  white-space: normal;      // ← autorise 2 lignes au lieu de couper
+  white-space: normal;
 }
 .orbital-node.is-active .orbital-node-circle {
-  background: $sage-green;
   transform: scale(1.15);
 }
-.orbital-node.is-active .orbital-node-score { color: #fff; }
 
 // carte détail
 .orbital-detail {
