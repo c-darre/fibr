@@ -21,9 +21,12 @@
         </div>
 
         <div class="form-actions d-grid gap-2 mt-4">
-          <%= f.button :submit, "Sign up" %>
+          <%= f.button :submit, "Sign up", class: "btn btn-primary rounded-pill" %>
         </div>
       <% end %>
+
+      <hr class="text-muted my-4">
+
       <div class="text-center">
         <%= render "devise/shared/links" %>
       </div>
