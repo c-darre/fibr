@@ -1,23 +1,24 @@
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="m-0 p-0">My previous scans</h4>
-    <%= button_to "+ New analysis", analyses_path, method: :post, class: "btn btn_fibr" %>
-  </div>
-
   <% if @analyses.empty? %>
     <p class="text-muted">You don't have a history yet!</p>
   <% else %>
     <%= form_with url: analyses_path, method: :get, local: true, class: "mb-4" do |f| %>
       <div class="input-group">
-        <%= f.text_field :query, value: params[:query], placeholder: "Search History...", class: "form-control bg-white" %>
-        <%= f.submit "Search", class: "btn btn-primary" %>
+        <%# Rounded only on the start (left) side %>
+        <%= f.text_field :query,
+                        value: params[:query],
+                        placeholder: "Search History...",
+                        class: "form-control bg-white rounded-start-pill border-end-0" %>
+
+        <%# Rounded only on the end (right) side %>
+        <%= f.submit "Search",
+                    class: "btn btn-primary rounded-end-pill" %>
       </div>
     <% end %>
-
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
-        <li class="list-group-item d-flex justify-content-between align-items-center border rounded-4 mb-2 shadow-sm rounded">
+        <li class="list-group-item d-flex justify-content-between align-items-center border rounded-4 bg-white mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
@@ -41,12 +42,12 @@
             %>
 
             <% if average_score %>
-              <% if average_score < 4.5 %>
-                <% couleur = "danger" %>
-              <% elsif average_score < 7.5 %>
-                <% couleur = "warning" %>
+              <% if average_score < 4 %>
+                <% couleur = "#dc3545" %> <%# Red %>
+              <% elsif average_score < 7 %>
+                <% couleur = "#ffc107" %> <%# Yellow %>
               <% else %>
-                <% couleur = "success" %>
+                <% couleur = "#198754" %> <%# Green (Fixed the stray parenthesis!) %>
               <% end %>
 
               <%
@@ -59,10 +60,12 @@
                 <svg class="progress-ring" width="50" height="50">
                   <circle class="progress-ring-track" cx="25" cy="25" r="18" stroke-width="2" fill="transparent" />
 
-                  <circle class="progress-ring-fill stroke-<%= couleur %>"
+                  <%# CHANGED: Swapped 'class="stroke-<%= couleur %>"' to 'stroke="<%= couleur %>"' %>
+                  <circle class="progress-ring-fill"
                           cx="25"
                           cy="25"
                           r="18"
+                          stroke="<%= couleur %>"
                           stroke-width="2"
                           fill="transparent"
                           stroke-dasharray="<%= total_circumference %>"

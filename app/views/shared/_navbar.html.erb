@@ -44,9 +44,12 @@
     <hr>
 
     <% if user_signed_in? %>
+      <%# Query updated to only show completed records matching your clean history look %>
       <% recent_analyses = current_user.analyses
+          .where(status: 'completed')
           .order(created_at: :desc)
           .limit(3) %>
+
       <% if recent_analyses.any? %>
         <div class="mt-4">
           <p class="text-uppercase text-muted fw-bold small mb-3">
@@ -54,14 +57,81 @@
           </p>
           <div class="d-flex flex-column gap-2">
             <% recent_analyses.each do |analysis| %>
-              <%= link_to analysis_path(analysis),
-                class: "text-decoration-none px-3 py-2 card list-group-item mb-2 shadow-sm rounded border text-dark small fw-semibold bg-white" do %>
-                <%= analysis.garment_type.presence || "Analysis of #{analysis.created_at.strftime('%d/%m/%Y')}" %>
-              <% end %>
-            <% end %>
+              <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
+
+              <%= link_to analysis_path(analysis), class: "text-decoration-none d-flex justify-content-between align-items-center border rounded-4 bg-white mb-2 p-0 pe-2 shadow-sm text-dark overflow-hidden" do %>
+
+                <%# Left Side: Thumbnail and Title %>
+                <div class="d-flex align-items-center gap-3 text-truncate">
+                  <% if photo %>
+                    <%= image_tag photo, class: "chat-thumbnail", style: "width: 70px; height: 70px; object-fit: cover;" %>
+                  <% else %>
+                    <div class="chat-thumbnail placeholder-emoji d-flex align-items-center justify-content-center border-end text-muted bg-light"
+                         style="width: 70px; height: 70px; font-size: 24px;">
+                      👖
+                    </div>
+                  <% end %>
+
+                  <div class="text-truncate py-2">
+                    <h6 class="mb-0 fw-bold text-dark text-truncate small" style="font-size: 14px;">
+                      <%= analysis.garment_type.presence || "Analysis of #{analysis.created_at.strftime('%d/%m/%Y')}" %>
+                    </h6>
+                    <small class="text-muted text-lowercase" style="font-size: 11px;"><%= analysis.status %></small>
+                  </div>
+                </div>
+
+                <%# Right Side: Mini Score Ring / Fallback Dash %>
+                <div class="ms-2 me-1">
+                  <%
+                    total_score   = analysis.criteria.sum(:score)
+                    max_score     = analysis.criteria.count * 10
+                    average_score = max_score > 0 ? (total_score.to_f / max_score * 10).ceil(1) : nil
+                  %>
+
+                  <% if average_score %>
+                    <% if average_score < 4 %>
+                      <% couleur = "#dc3545" %>
+                    <% elsif average_score < 7 %>
+                      <% couleur = "#ffc107" %>
+                    <% else %>
+                      <% couleur = "#198754" %>
+                    <% end %>
+
+                    <%
+                      score_percentage = (average_score * 10).to_i
+                      navbar_circumference = 87.96
+                      navbar_stroke_offset = navbar_circumference - ((score_percentage / 100.0) * navbar_circumference)
+                    %>
+
+                    <div class="score-circle position-relative d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                      <svg class="progress-ring" width="36" height="36" style="transform: rotate(-90deg);&quot;">
+                        <circle class="progress-ring-track" cx="18" cy="18" r="14" stroke="#e9ecef" stroke-width="2.5" fill="transparent" />
+                        <circle class="progress-ring-fill"
+                                cx="18"
+                                cy="18"
+                                r="14"
+                                stroke="<%= couleur %>"
+                                stroke-width="2.5"
+                                fill="transparent"
+                                stroke-dasharray="<%= navbar_circumference %>"
+                                style="stroke-dashoffset: <%= navbar_stroke_offset %>px;" />
+                      </svg>
+                      <div class="position-absolute fw-bold text-dark" style="font-size: 9px; line-height: 1; letter-spacing: -0.5px;">
+                        <%= average_score %>
+                      </div>
+                    </div>
+                  <% else %>
+                    <div class="d-flex align-items-center justify-content-center text-muted me-2" style="width: 36px; height: 36px;">
+                      -
+                    </div>
+                  <% end %>
+                </div>
+
+              <% end %> <%# Ends link_to link path %>
+            <% end %> <%# Ends recent_analyses.each loop %>
           </div>
         </div>
-      <% end %>
+      <% end %> <%# Ends recent_analyses.any? check %>
 
       <div class="mt-auto">
         <p class="text-muted small mb-2">
@@ -72,7 +142,8 @@
           data: { turbo_method: :delete },
           class: "btn go-btn w-100 fw-semibold" %>
       </div>
-    <% else %>
+
+    <% else %> <%# Main user_signed_in? Fallback %>
       <div class="mt-auto d-grid gap-2">
         <%= link_to "Sign in",
           new_user_session_path,
@@ -81,6 +152,6 @@
           new_user_registration_path,
           class: "btn history-btn fw-semibold" %>
       </div>
-    <% end %>
+    <% end %> <%# Ends main user_signed_in? check %>
   </div>
 </div>
