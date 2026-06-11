@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="m-0 p-0">My previous scans</h3>
-    <%= button_to "New analysis", analyses_path, method: :post, class: "btn btn-outline-secondary" %>
+    <h4 class="m-0 p-0">My previous scans</h4>
+    <%= button_to "+ New analysis", analyses_path, method: :post, class: "btn btn_fibr" %>
   </div>
 
   <% if @analyses.empty? %>
@@ -9,7 +9,7 @@
   <% else %>
     <%= form_with url: analyses_path, method: :get, local: true, class: "mb-4" do |f| %>
       <div class="input-group">
-        <%= f.text_field :query, value: params[:query], placeholder: "Search History...", class: "form-control" %>
+        <%= f.text_field :query, value: params[:query], placeholder: "Search History...", class: "form-control bg-white" %>
         <%= f.submit "Search", class: "btn btn-primary" %>
       </div>
     <% end %>
@@ -17,7 +17,7 @@
     <ul class="list-unstyled p-0 m-0">
       <% @analyses.each do |analysis| %>
         <% photo = analysis.analysis_chat&.messages&.first&.photos&.second %>
-        <li class="list-group-item d-flex justify-content-between align-items-center border mb-2 shadow-sm rounded">
+        <li class="list-group-item d-flex justify-content-between align-items-center bg-white border mb-2 shadow-sm rounded">
           <div class="d-flex align-items-center gap-3">
             <% if photo %>
               <%= image_tag photo, class: "chat-thumbnail" %>
