@@ -34,19 +34,23 @@ class QuestionnaryJob < ApplicationJob
     size ||= last_user_content[SIZE_NUMBER_PATTERN, 1]
 
     if size.nil?
-      chat.messages.create!(
+      message = chat.messages.create!(
         role: :assistant,
         content: "Hello! What is the size of your #{known_type || 'garment'}? (XS, S, M, L, XL or XXL)"
       )
+      # Replace the typing indicator with the new assistant message
+      broadcast_message(chat, message)
       return
     end
 
     composition = analysis.ecobalyse_fields&.dig("composition") || []
     if composition.blank?
-      chat.messages.create!(
+      message = chat.messages.create!(
         role: :assistant,
         content: "Unable to calculate impact: unreadable composition."
       )
+      # Replace the typing indicator with the error message
+      broadcast_message(chat, message)
       return
     end
 
@@ -59,7 +63,9 @@ class QuestionnaryJob < ApplicationJob
     Rails.logger.info("ECOBALYSE RESULT -> #{result.inspect}")
 
     if result[:error]
-      chat.messages.create!(role: :assistant, content: "An error occurred while calculating the impact.")
+      message = chat.messages.create!(role: :assistant, content: "An error occurred while calculating the impact.")
+      # Replace the typing indicator with the error message
+      broadcast_message(chat, message)
       return
     end
 
@@ -70,10 +76,12 @@ class QuestionnaryJob < ApplicationJob
       garment_size: size
     )
 
-    chat.messages.create!(
+    message = chat.messages.create!(
       role: :assistant,
       content: "Perfect, size #{size} noted! Click the button below to see your environmental impact results."
     )
+    # Replace the typing indicator with the confirmation message
+    broadcast_message(chat, message)
 
     # Désactive la zone de saisie : on la remplace par un bouton vers les résultats
     Turbo::StreamsChannel.broadcast_replace_to(
@@ -85,6 +93,16 @@ class QuestionnaryJob < ApplicationJob
   end
 
   private
+
+  # Replaces the typing indicator in the chat view with a new assistant message bubble
+  def broadcast_message(chat, message)
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "chat_#{chat.id}",
+      target: "typing-indicator",
+      partial: "messages/message",
+      locals: { message: message }
+    )
+  end
 
   def letter_size(size)
     return size unless size.match?(/\A\d+\z/)

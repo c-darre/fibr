@@ -10,5 +10,5 @@ class Message < ApplicationRecord
       target: "messages-container",
       partial: "messages/message",
       locals: { message: self }
-  }, if: -> { %w[questionnary discussion].include?(chat.kind) }
+  }, if: -> { %w[discussion].include?(chat.kind) }
 end

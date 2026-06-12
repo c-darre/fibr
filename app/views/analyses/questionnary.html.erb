@@ -24,6 +24,10 @@
        class="quiz-messages flex-grow-1"
        style="background-image: url('<%= asset_path("question_bg.svg") %>'); background-repeat: no-repeat; background-position: center; background-size: 150px; padding: 1rem; overflow-y: auto;">
     <%= render @chat.messages.order(:created_at) %>
+    <%# Show typing indicator when the last message is from the user (waiting for assistant reply) %>
+    <% if @chat.messages.order(:created_at).last&.role == "user" %>
+      <%= render "messages/typing" %>
+    <% end %>
   </div>
 
   <%# Barre de saisie OU bouton résultats %>
@@ -67,15 +71,5 @@
       document.getElementById("quiz-input").value = btn.dataset.size
       document.getElementById("quiz-form").requestSubmit()
     })
-  })
-
-  function scrollChatEnBas() {
-    const c = document.getElementById("messages-container")
-    // Le scroll se fait maintenant UNIQUEMENT dans ce conteneur
-    if (c) c.scrollTop = c.scrollHeight
-  }
-  document.addEventListener("turbo:load", scrollChatEnBas)
-  document.addEventListener("turbo:before-stream-render", function () {
-    setTimeout(scrollChatEnBas, 50)
   })
 </script>
